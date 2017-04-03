@@ -11,7 +11,7 @@ const PORT = 3000;
 
 mongoose.connect(mongoUrl, function() {
   // WARNING: every connection will drop database, comment this out when ready to deploy
-  mongoose.connection.db.dropDatabase();
+  // mongoose.connection.db.dropDatabase();
 });
 mongoose.connection.once('open', () => {
   console.log('Connected to Database');
@@ -23,7 +23,7 @@ app.use(bodyParser.json());
 
 app.use(express.static(__dirname + '/public'));
 
-app.get('/', (req, res) => {
+app.get('/', (req, res, next) => {
   res.sendFile(__dirname + '/public/home/home.html');
 })
 
