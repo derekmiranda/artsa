@@ -6,7 +6,7 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const userController = require('./userController');
 
-const mongoUrl = 'mongodb://jeffreyma:jeffreyma@ec2-52-89-83-246.us-west-2.compute.amazonaws.com:27017/scratchDB';
+const mongoUrl = 'mongodb://joeljoel:1music@ds149820.mlab.com:49820/excelsior';
 const PORT = 3000;
 
 mongoose.connect(mongoUrl, function() {
