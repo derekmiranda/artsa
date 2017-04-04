@@ -57,17 +57,15 @@ app.put('/notes/:user', userController.updateUser);
 // app.delete('/:name', userController.deleteUser);
 
 function onDrawConnection(socket) {
-  // Disconnect event
-  socket.on('userLeft', (roomName) => {
-    // search for room w/in rooms and increment numUsers
-    console.log('Socket in room: '+ roomName);
-  });
+  // storing room name
+  let storedRoomName;
 
   // Join room
   socket.on('room', (roomName) => {
-    console.log('Someone joined ' + roomName);
+    storedRoomName = roomName;
+    console.log(socket.id + ' joined ' + roomName);
 
-    // search for room w/in rooms and increment numUsers
+    // search for room w/in rooms and push new client id
     const emittingRoom = rooms.find(room => room.name === roomName);
     emittingRoom && emittingRoom.clients.push(socket.id);
 
@@ -80,6 +78,22 @@ function onDrawConnection(socket) {
   //Waits for cleared emit from canvas.js THEN broadcasts & emits data to socket in canvas.js
   socket.on('cleared', (roomName, data) => socket.broadcast.to(roomName).emit('clearCanvas', data));
 
+  // Disconnect event
+  socket.on('disconnect', () => {
+    // no stored room name or empty rooms array
+    if (!storedRoomName || !rooms.length) return;
+
+    console.log(socket.id + ' disconnected from ' + storedRoomName);
+
+    // search for room w/in rooms and remove id
+
+    // index of id to remove
+    const targetRoom = rooms.find(room => room.name === storedRoomName);
+    const disconnIdx = targetRoom.clients.indexOf(socket.id);
+
+    // remove id from room
+    targetRoom.clients.splice(disconnIdx, 1);
+  });
 }
 
 //On initial server connection, socket passed to onDrawConnection function.
