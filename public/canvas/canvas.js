@@ -30,6 +30,7 @@
 
   //Creates a click event listener for each color div written in canvas.html
   for (let i = 0; i < colors.length; i++) {
+    console.log(colors);
     colors[i].addEventListener('click', onColorUpdate, false);
   }
 
@@ -103,7 +104,6 @@
   //Retrieves the specific color element from the DOM & sets current variable to new color value
   function onColorUpdate(e) {
     current.color = e.target.className.split(' ')[1];
-    console.log(current.color);
   }
 
   //This limits the number of events per second. Functional without it, but limits burdening the server with updates
@@ -130,9 +130,7 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
   }
-<<<<<<< HEAD
-})();
-=======
+
 
   //Triggered off Clear Canvas button click
   function clearCanvas() {
@@ -162,7 +160,7 @@
     //Clears the canvas content
     context.clearRect(0, 0, canvas.width, canvas.height);
   });
-  
+
   // clearCanvas click handler
   const clearCanvasBtn = document.getElementById('clearCanvas');
   clearCanvasBtn.addEventListener('click', clearCanvas);
@@ -171,5 +169,3 @@
   const saveCanvasBtn = document.getElementById('saveCanvas');
   saveCanvasBtn.addEventListener('click', saveCanvas);
 })();
-
->>>>>>> 41c691385f1d44c36111e9ac20cbb84bcb2fff34
