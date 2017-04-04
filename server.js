@@ -73,8 +73,8 @@ const roomsNsp = io.of('/rooms');
 roomsNsp.on('connection', (roomsSocket) => {
   console.log('Connection to lobby');
 
+  // adds room to memory
   roomsSocket.on('createRoom', (roomName) => {
-    console.log(rooms);
     // check if room already there
     if (rooms.indexOf(roomName) > -1) {
       console.log('Room name already added');
@@ -85,6 +85,12 @@ roomsNsp.on('connection', (roomsSocket) => {
     rooms.push(roomName);
     roomsSocket.emit('addRoomDiv', roomName);
   });
+
+  // gives new connection current rooms
+  roomsSocket.on('addExisting', (cb) => {
+    console.log('Adding current rooms to new connection');
+    cb(rooms);
+  })
 });
 
 http.listen(PORT, () => console.log(`Listening on PORT: ${PORT}`));

@@ -10,8 +10,6 @@ function sendObj(user, notes) {
   return JSON.stringify(obj);
 }
 
-
-
 function createUser(userNumber) {
   $.ajax({
     url: URL + '/create',
@@ -30,7 +28,7 @@ function getUserNumber() {
 }
 
 $(document).ready(function () {
-  const rooms = $('#rooms');
+  const roomsContainer = $('#rooms');
 
   // Check database at intervals for updates in user number
   // setInterval(function () {
@@ -40,7 +38,7 @@ $(document).ready(function () {
   // }, 500);
 
   // Go to room
-  rooms.on('click', 'a', function (event) {
+  roomsContainer.on('click', 'a', function (event) {
     let user = event.target.innerHTML.slice(9, 10);
     user = parseInt(user) + 1;
 
@@ -61,7 +59,7 @@ $(document).ready(function () {
 
     window.open(roomUrl);
   });
-  
+
   const roomDivs = [];
   const roomNameInput = $('input#room-name');
   createRoomsSocket();
@@ -71,11 +69,25 @@ $(document).ready(function () {
     // Rooms socket namespace
     const roomsSocket = io('/rooms');
 
+    // Adds rooms previously before going to home page
+    function addExistingRooms(rooms) {
+      console.log('Adding rooms: ' + rooms);
+      rooms.forEach(room => {
+        const roomDiv = createRoomDiv(room);
+        roomDivs.push(roomDiv);
+        roomsContainer.append(roomDiv);
+      });
+    }
+
+    roomsSocket.on('connect', () => {
+      roomsSocket.emit('addExisting', addExistingRooms);
+    });
+
     // add room divs on successful name submit
     roomsSocket.on('addRoomDiv', (roomName) => {
       const newRoomDiv = createRoomDiv(roomName);
       roomDivs.push(newRoomDiv);
-      rooms.append(newRoomDiv);
+      roomsContainer.append(newRoomDiv);
     });
 
     // Add new room to room list
@@ -87,6 +99,8 @@ $(document).ready(function () {
       roomsSocket.emit('createRoom', roomNameVal);
     });
   }
+
+  
 
   function createRoomDiv(roomName, link = "'/host/host.html'") {
     const newLinkDiv = $(
