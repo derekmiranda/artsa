@@ -13,6 +13,15 @@ $(document).ready(function () {
   let user = window.location.pathname.slice(12);
   let notesUrl = URL + '/notes/' + user;
 
+  $.get("https://api.mlab.com/api/1/databases/excelsior/collections/users?apiKey=Q_zO8p5Jdg_fL7Ux27vBBVCrv37XPyBe",
+  function (data) {
+    for(let i = 0; i < data.length; i++){
+      if (data[i].user === user.toString()){
+        $('#notes').val(data[i].notes);
+      }
+    }
+  });
+
   $('#save').on('click', function (event) {
     let notes = $('#notes').val();
     $.ajax({

@@ -35,11 +35,12 @@ const userController = {
     });
   },
 
+
   updateUser(req, res) {
     const user = req.params.user;
     const newNotes = req.body.notes;
     console.log(req.body);
-
+    
     User.update(
       { user: user },
       {

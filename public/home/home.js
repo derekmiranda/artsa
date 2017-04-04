@@ -10,6 +10,8 @@ function sendObj(user, notes) {
   return JSON.stringify(obj);
 }
 
+
+
 function createUser(userNumber) {
   $.ajax({
     url: URL + '/create',
@@ -24,6 +26,7 @@ function getUserNumber() {
   $.get(URL + '/notes/tracker', function (data) {
     globalUserNum = parseInt(data.notes);
   });
+
 }
 
 $(document).ready(function () {
@@ -52,6 +55,8 @@ $(document).ready(function () {
     if (user > 1) $('#room1').text('Room 1:  ' + user.toString() + ' Users');
     let roomUrl = URL + "/rooms/room1" + 'user' + user.toString();
     createUser(user);
+
+
     window.open(roomUrl);
   });
 
