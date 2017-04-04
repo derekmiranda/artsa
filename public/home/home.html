@@ -6,6 +6,7 @@
   <title>Home</title>
   <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
   <script src="jquery.min.js"></script>
+  <script src='./../socket.io/socket.io.js'></script>
   <link rel='stylesheet' href='/home/home.css'>
 </head>
 
@@ -16,20 +17,14 @@
       <div class='col-sm-8'>
         <h1>CanvUs</h1>
         <!--(Names? Live, Remote, Draw, Display, Canvas, Pic)-->
-        <!--<h2>Create New Room</h2>-->
-        <!--<form id='create-room'>
-          <input type='text' placeholder='Room Name...' name='room'>
+        <h2>Create New Room</h2>
+        <form id='create-room'>
+          <input id='room-name' type='text' placeholder='Room Name...' name='room'>
           <button type='submit'>Create Room</button>
-        </form>-->
+        </form>
         <h2>Open Rooms</h2>
         <div id='rooms'>
           <div class='link-div well'><a id='room1'>Room 1:  0 Users</a></div>
-          <!--<a href='/host/host.html'><div class='link-div well'>
-            Room 2
-          </div></a>
-          <a href='/host/host.html'><div class='link-div well'>
-            Room 3
-          </div></a>-->
           <!--Open rooms will render here...-->
         </div>
       </div>

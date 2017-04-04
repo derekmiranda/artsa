@@ -9,7 +9,7 @@ const userController = require('./userController');
 const mongoUrl = 'mongodb://joeljoel:1music@ds149820.mlab.com:49820/excelsior';
 const PORT = 3000;
 
-mongoose.connect(mongoUrl, function() {
+mongoose.connect(mongoUrl, function () {
   // WARNING: every connection will drop database, comment this out when ready to deploy
   // mongoose.connection.db.dropDatabase();
 });
@@ -46,16 +46,54 @@ app.put('/notes/:user', userController.updateUser);
 // // localhost://3000/user/"name"
 // app.delete('/:name', userController.deleteUser);
 
-function onConnection(socket) {
-    //Waits for drawing emit from main.js THEN broadcasts & emits the data to socket in main.js (line 32)
-    socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
+function onDrawConnection(socket) {
+  console.log('Drawing socket connected');
+  // Join room
+  socket.on('room', (room) => {
+    console.log('Joining ' + room);
+    socket.join(room)
+  });
 
-    //Waits for cleared emit from canvas.html THEN broadcasts & emits data to socket in canvas.html (line 35)
-    socket.on('cleared', (data) => socket.broadcast.emit('clearCanvas', data));
+  //Waits for drawing emit from main.js THEN broadcasts & emits the data to socket in main.js (line 32)
+  socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
+
+  //Waits for cleared emit from canvas.html THEN broadcasts & emits data to socket in canvas.html (line 35)
+  socket.on('cleared', (data) => socket.broadcast.emit('clearCanvas', data));
+
 }
 
-//On initial server connection, socket passed to onConnection function.
-io.on('connection', onConnection);
+//On initial server connection, socket passed to onDrawConnection function.
+const drawNsp = io.of('/draw');
+drawNsp.on('connection', onDrawConnection);
 
+// Rooms namespace: save and show available rooms to users
+const rooms = [];
+const roomsNsp = io.of('/rooms');
+
+roomsNsp.on('connection', (roomsSocket) => {
+  console.log('Connection to lobby');
+
+  // adds room to memory
+  roomsSocket.on('createRoom', (roomName, cb) => {
+    // check if room already there
+    if (rooms.indexOf(roomName) > -1) {
+      console.log('Room name already added');
+      return;
+    }
+
+    rooms.push(roomName);
+
+    // call cb on roomName
+    // in this case, add room div to original emitting client (home.js)
+    cb(roomName);
+    roomsSocket.broadcast.emit('addRoomDiv', roomName);
+  });
+
+  // gives new connection current rooms
+  roomsSocket.on('addExisting', (cb) => {
+    console.log('Adding current rooms to new connection');
+    cb(rooms);
+  })
+});
 
 http.listen(PORT, () => console.log(`Listening on PORT: ${PORT}`));

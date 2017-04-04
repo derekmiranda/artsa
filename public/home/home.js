@@ -28,18 +28,21 @@ function getUserNumber() {
   $.get(URL + '/notes/tracker', function (data) {
     globalUserNum = parseInt(data.notes);
   });
+
 }
 
 $(document).ready(function () {
+  const roomsContainer = $('#rooms');
 
   // Check database at intervals for updates in user number
-  setInterval(function () {
-    getUserNumber();
-    if (globalUserNum === 1) $('#room1').text('Room 1:  ' + globalUserNum.toString() + ' User');
-    if (globalUserNum > 1) $('#room1').text('Room 1:  ' + globalUserNum.toString() + ' Users');
-  }, 500);
+  // setInterval(function () {
+  //   getUserNumber();
+  //   if (globalUserNum === 1) $('#room1').text('Room 1:  ' + globalUserNum.toString() + ' User');
+  //   if (globalUserNum > 1) $('#room1').text('Room 1:  ' + globalUserNum.toString() + ' Users');
+  // }, 500);
 
-  $('#rooms').on('click', 'a', function (event) {
+  // Go to room
+  roomsContainer.on('click', 'a', function (event) {
     let user = event.target.innerHTML.slice(9, 10);
     user = parseInt(user) + 1;
 
@@ -56,7 +59,64 @@ $(document).ready(function () {
     if (user > 1) $('#room1').text('Room 1:  ' + user.toString() + ' Users');
     let roomUrl = URL + "/rooms/room1" + 'user' + user.toString();
     createUser(user);
+
+
     window.open(roomUrl);
   });
+
+  const roomDivs = [];
+  const roomNameInput = $('input#room-name');
+  createRoomsSocket();
+
+  function createRoomsSocket() {
+
+    // Rooms socket namespace
+    const roomsSocket = io('/rooms');
+
+    // Adds rooms previously before going to home page
+    function addExistingRooms(rooms) {
+      console.log('Adding rooms: ' + rooms);
+      rooms.forEach(room => {
+        const roomDiv = createRoomDiv(room);
+        roomDivs.push(roomDiv);
+        roomsContainer.append(roomDiv);
+      });
+    }
+
+    roomsSocket.on('connect', () => {
+      roomsSocket.emit('addExisting', addExistingRooms);
+    });
+
+    // append room div to UI
+    function appendRoomDiv(roomName) {
+      console.log('Adding room: ' + roomName);
+      const newRoomDiv = createRoomDiv(roomName);
+      roomDivs.push(newRoomDiv);
+      roomsContainer.append(newRoomDiv);
+    }
+
+    // Add new room to room list
+    $('form#create-room').submit((event, elem) => {
+      event.preventDefault();
+      const roomNameVal = roomNameInput.val().trim();
+      if (!roomNameVal) return false;
+
+      roomsSocket.emit('createRoom', roomNameVal, appendRoomDiv);
+    });
+
+    // add room divs on successful name submit
+    roomsSocket.on('addRoomDiv', appendRoomDiv);
+  }
+
+  function createRoomDiv(roomName, link = "'/host/host.html'") {
+    const newLinkDiv = $(
+      `<div class='link-div well'>
+          <a href=${link}>
+          </a>
+        </div>`
+    );
+    newLinkDiv.find('a').text(roomName);
+    return newLinkDiv;
+  }
 
 });

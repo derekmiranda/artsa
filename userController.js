@@ -2,7 +2,7 @@ const User = require('./userModel');
 
 const userController = {}
 
-userController.getAllUsers= function (req, res) {
+userController.getAllUsers = function (req, res) {
   console.log("getAllUsers fires off")
   User.find({}, (err, results) => {
     if (err) {
@@ -59,6 +59,7 @@ userController.updateUser = function (req, res) {
     }
   )
 }
+
 
 
 module.exports = userController;
