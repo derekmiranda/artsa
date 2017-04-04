@@ -26,31 +26,15 @@ function getUserNumber() {
   });
 }
 
-const newRoomLink = (() => {
-  let roomNo = 1;
-  return () => {
-    const newLinkDiv = $(
-      `<a href='/host/host.html'>
-        <div class='link-div well'>
-        </div>
-      </a>`
-    );
-    newLinkDiv.find('div').text(`Room ${roomNo}`);
-    roomNo += 1;
-    return newLinkDiv;
-  }
-})();
-
 $(document).ready(function () {
-
   const rooms = $('#rooms');
 
   // Check database at intervals for updates in user number
-  setInterval(function () {
-    getUserNumber();
-    if (globalUserNum === 1) $('#room1').text('Room 1:  ' + globalUserNum.toString() + ' User');
-    if (globalUserNum > 1) $('#room1').text('Room 1:  ' + globalUserNum.toString() + ' Users');
-  }, 500);
+  // setInterval(function () {
+  //   getUserNumber();
+  //   if (globalUserNum === 1) $('#room1').text('Room 1:  ' + globalUserNum.toString() + ' User');
+  //   if (globalUserNum > 1) $('#room1').text('Room 1:  ' + globalUserNum.toString() + ' Users');
+  // }, 500);
 
   // Go to room
   rooms.on('click', 'a', function (event) {
@@ -73,11 +57,35 @@ $(document).ready(function () {
     window.open(roomUrl);
   });
 
-  // Add new room to room list
-  $('form#create-room').submit(event => {
-    event.preventDefault();
-    
-    rooms.append(newRoomLink());
-  })
+  const roomDivs = [];
+  const roomNameInput = $('input#room-name');
+  createRoomsSocket();
+
+  function createRoomsSocket() {
+
+    // Rooms socket namespace
+    const roomsSocket = io('/rooms');
+
+    // Add new room to room list
+    $('form#create-room').submit((event, elem) => {
+      event.preventDefault();
+      roomsSocket.emit('createRoom', roomNameInput.val(), (roomName) => {
+        const newRoomDiv = createRoomDiv(roomName);
+        roomDivs.push(newRoomDiv);
+        rooms.append(newRoomDiv);
+      });
+    });
+  }
+
+  function createRoomDiv(roomName) {
+    const newLinkDiv = $(
+      `<a href='/host/host.html'>
+        <div class='link-div well'>
+        </div>
+      </a>`
+    );
+    newLinkDiv.find('div').text(roomName);
+    return newLinkDiv;
+  }
 
 });

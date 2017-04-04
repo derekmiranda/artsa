@@ -9,7 +9,7 @@ const userController = require('./userController');
 const mongoUrl = 'mongodb://joeljoel:1music@ds149820.mlab.com:49820/excelsior';
 const PORT = 3000;
 
-mongoose.connect(mongoUrl, function() {
+mongoose.connect(mongoUrl, function () {
   // WARNING: every connection will drop database, comment this out when ready to deploy
   // mongoose.connection.db.dropDatabase();
 });
@@ -47,15 +47,29 @@ app.put('/notes/:user', userController.updateUser);
 // app.delete('/:name', userController.deleteUser);
 
 function onConnection(socket) {
-    //Waits for drawing emit from main.js THEN broadcasts & emits the data to socket in main.js (line 32)
-    socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
+  //Waits for drawing emit from main.js THEN broadcasts & emits the data to socket in main.js (line 32)
+  socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
 
-    //Waits for cleared emit from canvas.html THEN broadcasts & emits data to socket in canvas.html (line 35)
-    socket.on('cleared', (data) => socket.broadcast.emit('clearCanvas', data));
+  //Waits for cleared emit from canvas.html THEN broadcasts & emits data to socket in canvas.html (line 35)
+  socket.on('cleared', (data) => socket.broadcast.emit('clearCanvas', data));
 }
 
 //On initial server connection, socket passed to onConnection function.
 io.on('connection', onConnection);
 
+// Rooms namespace: save and show available rooms to users
+const rooms = [];
+const roomsNsp = io.of('/rooms');
+
+roomsNsp.on('connection', (roomsSocket) => {
+  console.log('Connection to lobby');
+
+  roomsSocket.on('createRoom', (roomName, cb) => {
+    console.log('Creating room: ' + roomName);
+    rooms.push(roomName);
+    cb(roomName);
+  });
+  
+});
 
 http.listen(PORT, () => console.log(`Listening on PORT: ${PORT}`));
