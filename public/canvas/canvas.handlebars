@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Socket.Io whiteboard</title>
+	<link rel="stylesheet" href="./../host/host.css">
+</head>
+
+<body style='background-color: white'>
+
+	<canvas class="whiteboard"></canvas>
+
+	<div class="colors">
+		<div class="color black"></div>
+		<div class="color red"></div>
+		<div class="color green"></div>
+		<div class="color blue"></div>
+		<div class="color yellow"></div>
+		<!--white marker = eraser, lol-->
+		<div class="color white"></div>
+		<button type="button" id="clearCanvas">Clear Canvas</button>
+		<button type="button" id="saveCanvas" class="saveImg">Save Canvas</button>
+	</div>
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+    // room name for socket sent by express/handlebars
+    const roomName = '{{ roomName }}';
+    console.log(roomName);
+  </script>
+	<script src="./canvas.js"></script>
+	<script>
+		
+	</script>
+</body>
+
+</html>

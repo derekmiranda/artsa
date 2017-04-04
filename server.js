@@ -1,9 +1,10 @@
 const express = require('express');
-const app = express();
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
+const exphbs = require('express-handlebars');
 const userController = require('./userController');
 
 const mongoUrl = 'mongodb://joeljoel:1music@ds149820.mlab.com:49820/excelsior';
@@ -17,6 +18,8 @@ mongoose.connection.once('open', () => {
   console.log('Connected to Database');
 });
 
+app.engine('handlebars', exphbs());
+app.set('view engine', 'handlebars');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -31,8 +34,15 @@ app.get('/', (req, res, next) => {
 app.get('/check', userController.getAllUsers);
 
 app.get('/rooms/:room', (req, res) => {
-  res.sendFile(__dirname + '/public/host/host.html');
+  const roomName = req.params.room;
+  res.render(__dirname + '/public/host/host.handlebars', { roomName });
 });
+
+// get isolated canvas for a specific room
+app.get('/canvas/:room', (req, res) => {
+  const roomName = req.params.room;
+  res.render(__dirname + '/public/canvas/canvas.handlebars', { roomName });
+})
 
 // click event creates user from req.body (obj)
 app.post('/create', userController.createUser);

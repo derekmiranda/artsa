@@ -12,7 +12,7 @@
 
   // connect confirm
   socket.on('connect', () => {
-    socket.emit('room', 'default');
+    socket.emit('room', roomName || 'default');
   });
 
   let current = {
