@@ -98,6 +98,7 @@
   //Retrieves the specific color element from the DOM & sets current variable to new color value
   function onColorUpdate(e) {
     current.color = e.target.className.split(' ')[1];
+    console.log(current.color);
   }
 
   //This limits the number of events per second. Functional without it, but limits burdening the server with updates
