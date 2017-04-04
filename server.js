@@ -57,18 +57,11 @@ app.put('/notes/:user', userController.updateUser);
 // app.delete('/:name', userController.deleteUser);
 
 function onDrawConnection(socket) {
-  console.log('Drawing socket connected');
-
   // Disconnect event
-  socket.on('disconnect', (roomName) => {
+  socket.on('userLeft', (roomName) => {
     // search for room w/in rooms and increment numUsers
-    const emittingRoom = rooms.find(room => room.name === roomName);
-
-    if (emittingRoom) {
-      emittingRoom.numUsers -= 1;
-      console.log(`Num of users in ${emittingRoom.name}: ${emittingRoom.numUsers}`);
-    }
-  })
+    console.log('Socket in room: '+ roomName);
+  });
 
   // Join room
   socket.on('room', (roomName) => {
@@ -76,11 +69,7 @@ function onDrawConnection(socket) {
 
     // search for room w/in rooms and increment numUsers
     const emittingRoom = rooms.find(room => room.name === roomName);
-
-    if (emittingRoom) {
-      emittingRoom.numUsers += 1;
-      console.log(`Num of users in ${emittingRoom.name}: ${emittingRoom.numUsers}`);
-    }
+    emittingRoom && emittingRoom.clients.push(socket.id);
 
     socket.join(roomName);
   });
@@ -100,7 +89,7 @@ drawNsp.on('connection', onDrawConnection);
 // Rooms namespace: save and show available rooms to users
 function Room(name) {
   this.name = name;
-  this.numUsers = 0;
+  this.clients = [];
 }
 
 const rooms = [];
