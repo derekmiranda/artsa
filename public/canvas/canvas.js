@@ -4,11 +4,15 @@
 (() => {
 
   //Creates the socket instance, canvas, colors, and 2d context of the canvas
-  let socket = io();
+  let socket = io('/draw');
   let canvas = document.getElementsByClassName('whiteboard')[0];
   let colors = document.getElementsByClassName('color');
   let context = canvas.getContext('2d');
 
+  // connect confirm
+  socket.on('connect', () => {
+    socket.emit('room', 'test');
+  })
 
   let current = {
     color: 'black',
