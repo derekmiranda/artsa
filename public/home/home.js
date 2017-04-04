@@ -83,12 +83,13 @@ $(document).ready(function () {
       roomsSocket.emit('addExisting', addExistingRooms);
     });
 
-    // add room divs on successful name submit
-    roomsSocket.on('addRoomDiv', (roomName) => {
+    // append room div to UI
+    function appendRoomDiv(roomName) {
+      console.log('Adding room: ' + roomName);
       const newRoomDiv = createRoomDiv(roomName);
       roomDivs.push(newRoomDiv);
       roomsContainer.append(newRoomDiv);
-    });
+    }
 
     // Add new room to room list
     $('form#create-room').submit((event, elem) => {
@@ -96,11 +97,12 @@ $(document).ready(function () {
       const roomNameVal = roomNameInput.val().trim();
       if (!roomNameVal) return false;
 
-      roomsSocket.emit('createRoom', roomNameVal);
+      roomsSocket.emit('createRoom', roomNameVal, appendRoomDiv);
     });
-  }
 
-  
+    // add room divs on successful name submit
+    roomsSocket.on('addRoomDiv', appendRoomDiv);
+  }
 
   function createRoomDiv(roomName, link = "'/host/host.html'") {
     const newLinkDiv = $(

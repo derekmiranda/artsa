@@ -74,16 +74,19 @@ roomsNsp.on('connection', (roomsSocket) => {
   console.log('Connection to lobby');
 
   // adds room to memory
-  roomsSocket.on('createRoom', (roomName) => {
+  roomsSocket.on('createRoom', (roomName, cb) => {
     // check if room already there
     if (rooms.indexOf(roomName) > -1) {
       console.log('Room name already added');
       return;
     }
 
-    console.log('Creating room: ' + roomName);
     rooms.push(roomName);
-    roomsSocket.emit('addRoomDiv', roomName);
+
+    // call cb on roomName
+    // in this case, add room div to original emitting client (home.js)
+    cb(roomName);
+    roomsSocket.broadcast.emit('addRoomDiv', roomName);
   });
 
   // gives new connection current rooms
