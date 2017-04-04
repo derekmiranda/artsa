@@ -46,16 +46,25 @@ app.put('/notes/:user', userController.updateUser);
 // // localhost://3000/user/"name"
 // app.delete('/:name', userController.deleteUser);
 
-function onConnection(socket) {
+function onDrawConnection(socket) {
+  console.log('Drawing socket connected');
+  // Join room
+  socket.on('room', (room) => {
+    console.log('Joining ' + room);
+    socket.join(room)
+  });
+
   //Waits for drawing emit from main.js THEN broadcasts & emits the data to socket in main.js (line 32)
   socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
 
   //Waits for cleared emit from canvas.html THEN broadcasts & emits data to socket in canvas.html (line 35)
   socket.on('cleared', (data) => socket.broadcast.emit('clearCanvas', data));
+
 }
 
-//On initial server connection, socket passed to onConnection function.
-io.on('connection', onConnection);
+//On initial server connection, socket passed to onDrawConnection function.
+const drawNsp = io.of('/draw');
+drawNsp.on('connection', onDrawConnection);
 
 // Rooms namespace: save and show available rooms to users
 const rooms = [];
