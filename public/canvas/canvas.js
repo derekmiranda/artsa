@@ -1,5 +1,10 @@
 'use strict';
 
+// const roomName - the room name for socket.io
+// sent by server then passed
+// thru host.handlebars
+// then canvas.handlebars
+
 //Entire document contained in an anonymous function that calls itself
 (() => {
 
@@ -181,7 +186,7 @@
     let h = canvas.height;
 
     //Emits the the beginning of drawing with the object of values as the callback
-    socket.emit('drawing', {
+    socket.emit('drawing', roomName, {
       x0: x0 / w,
       y0: y0 / h,
       x1: x1 / w,
@@ -251,10 +256,11 @@
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     //Emits 'cleared' to server.js (line 13)
-    socket.emit('cleared', {
+   
+    socket.emit('cleared', roomName, {
       Darrick: 'Is the Best!',
     });
-  }
+  
 
   function saveCanvas() {
     var canvas = document.getElementsByClassName('whiteboard')[0]; console.log(!!canvas);
