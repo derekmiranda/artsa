@@ -50,7 +50,7 @@ function onDrawConnection(socket) {
   console.log('Drawing socket connected');
   // Join room
   socket.on('room', (room) => {
-    console.log('Joining ' + room);
+    console.log('Someone joined ' + room);
     socket.join(room)
   });
 

@@ -128,4 +128,42 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
   }
+
+  //Triggered off Clear Canvas button click
+  function clearCanvas() {
+    let canvas = document.getElementsByClassName('whiteboard')[0];
+    let context = canvas.getContext('2d');
+
+    //Clears the canvas content
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    //Emits 'cleared' to server.js (line 13)
+    socket.emit('cleared', {
+      Darrick: 'Is the Best!',
+    });
+  }
+
+  function saveCanvas() {
+    var canvas = document.getElementsByClassName('whiteboard')[0]; console.log(!!canvas);
+    var fullQuality = canvas.toDataURL();
+    window.open(fullQuality);
+  }
+
+  //Accepts mass emit from line 14 of server.js to clear out it's context
+  socket.on('clearCanvas', function (data) {
+    let canvas = document.getElementsByClassName('whiteboard')[0];
+    let context = canvas.getContext('2d');
+
+    //Clears the canvas content
+    context.clearRect(0, 0, canvas.width, canvas.height);
+  });
+  
+  // clearCanvas click handler
+  const clearCanvasBtn = document.getElementById('clearCanvas');
+  clearCanvasBtn.addEventListener('click', clearCanvas);
+
+  // saveCanvas click handler
+  const saveCanvasBtn = document.getElementById('saveCanvas');
+  saveCanvasBtn.addEventListener('click', saveCanvas);
 })();
+
