@@ -1,5 +1,5 @@
-// const URL = 'http://ec2-52-89-83-246.us-west-2.compute.amazonaws.com:3000';
-const URL = 'http://localhost:3000';
+// const serverUrl = 'http://ec2-52-89-83-246.us-west-2.compute.amazonaws.com:3000';
+const serverUrl = 'http://localhost:3000';
 
 function sendObj(user, notes) {
   var obj = {
@@ -11,7 +11,7 @@ function sendObj(user, notes) {
 
 $(document).ready(function () {
   let user = window.location.pathname.slice(12);
-  let notesUrl = URL + '/notes/' + user;
+  let notesUrl = serverUrl + '/notes/' + user;
 
   $.get("https://api.mlab.com/api/1/databases/excelsior/collections/users?apiKey=Q_zO8p5Jdg_fL7Ux27vBBVCrv37XPyBe",
   function (data) {
@@ -25,7 +25,7 @@ $(document).ready(function () {
   $('#save').on('click', function (event) {
     let notes = $('#notes').val();
     $.ajax({
-      url: URL + '/notes/' + user,
+      url: serverUrl + '/notes/' + user,
       type: "PUT",
       data: sendObj(user, notes),
       dataType: "json",
