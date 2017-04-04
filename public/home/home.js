@@ -41,28 +41,27 @@ $(document).ready(function () {
   //   if (globalUserNum > 1) $('#room1').text('Room 1:  ' + globalUserNum.toString() + ' Users');
   // }, 500);
 
-  // Go to room
-  roomsContainer.on('click', 'a', function (event) {
-    let user = event.target.innerHTML.slice(9, 10);
-    user = parseInt(user) + 1;
+  // // Go to room
+  // roomsContainer.on('click', 'a', function (event) {
+  //   let user = event.target.innerHTML.slice(9, 10);
+  //   user = parseInt(user) + 1;
 
-    // create or update tracker to keep track of numbers of users
-    $.ajax({
-      url: URL + '/notes/tracker',
-      type: "PUT",
-      data: sendObj('tracker', user),
-      dataType: "json",
-      contentType: "application/json"
-    });
+  //   // // create or update tracker to keep track of numbers of users
+  //   // $.ajax({
+  //   //   url: URL + '/notes/tracker',
+  //   //   type: "PUT",
+  //   //   data: sendObj('tracker', user),
+  //   //   dataType: "json",
+  //   //   contentType: "application/json"
+  //   // });
 
-    if (user === 1) $('#room1').text('Room 1:  ' + user.toString() + ' User');
-    if (user > 1) $('#room1').text('Room 1:  ' + user.toString() + ' Users');
-    let roomUrl = URL + "/rooms/room1" + 'user' + user.toString();
-    createUser(user);
+  //   if (user === 1) $('#room1').text('Room 1:  ' + user.toString() + ' User');
+  //   if (user > 1) $('#room1').text('Room 1:  ' + user.toString() + ' Users');
+  //   let roomUrl = URL + "/rooms/room1" + 'user' + user.toString();
+  //   createUser(user);
 
-
-    window.open(roomUrl);
-  });
+  //   window.open(roomUrl);
+  // });
 
   const roomDivs = [];
   const roomNameInput = $('input#room-name');
@@ -108,10 +107,10 @@ $(document).ready(function () {
     roomsSocket.on('addRoomDiv', appendRoomDiv);
   }
 
-  function createRoomDiv(roomName, link = "'/host/host.html'") {
+  function createRoomDiv(roomName) {
     const newLinkDiv = $(
       `<div class='link-div well'>
-          <a href=${link}>
+          <a href="/rooms/${roomName}">
           </a>
         </div>`
     );

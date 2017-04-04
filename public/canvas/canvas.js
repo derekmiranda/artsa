@@ -4,15 +4,16 @@
 (() => {
 
   //Creates the socket instance, canvas, colors, and 2d context of the canvas
-  let socket = io('/draw');
-  let canvas = document.getElementsByClassName('whiteboard')[0];
-  let colors = document.getElementsByClassName('color');
-  let context = canvas.getContext('2d');
+  const socket = io('/draw');
+  const canvas = document.getElementsByClassName('whiteboard')[0];
+  const colors = document.getElementsByClassName('color');
+  const context = canvas.getContext('2d');
+  const url = new URL(window.location);
 
   // connect confirm
   socket.on('connect', () => {
-    socket.emit('room', 'test');
-  })
+    socket.emit('room', roomName || 'default');
+  });
 
   let current = {
     color: 'black',
@@ -134,6 +135,10 @@
     }
   }
 
+  // Tap event for choosing colors on mobile 
+  document.getElementsByClassName("colors").on("tap", function(){
+    
+  })
 
   //Creates a click event listener for each color div written in canvas.html
   for (let i = 0; i < colors.length; i++) {
@@ -236,4 +241,42 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
   }
+
+  //Triggered off Clear Canvas button click
+  function clearCanvas() {
+    let canvas = document.getElementsByClassName('whiteboard')[0];
+    let context = canvas.getContext('2d');
+
+    //Clears the canvas content
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    //Emits 'cleared' to server.js (line 13)
+    socket.emit('cleared', {
+      Darrick: 'Is the Best!',
+    });
+  }
+
+  function saveCanvas() {
+    var canvas = document.getElementsByClassName('whiteboard')[0]; console.log(!!canvas);
+    var fullQuality = canvas.toDataURL();
+    window.open(fullQuality);
+  }
+
+  //Accepts mass emit from line 14 of server.js to clear out it's context
+  socket.on('clearCanvas', function (data) {
+    let canvas = document.getElementsByClassName('whiteboard')[0];
+    let context = canvas.getContext('2d');
+
+    //Clears the canvas content
+    context.clearRect(0, 0, canvas.width, canvas.height);
+  });
+  
+  // clearCanvas click handler
+  const clearCanvasBtn = document.getElementById('clearCanvas');
+  clearCanvasBtn.addEventListener('click', clearCanvas);
+
+  // saveCanvas click handler
+  const saveCanvasBtn = document.getElementById('saveCanvas');
+  saveCanvasBtn.addEventListener('click', saveCanvas);
 })();
+

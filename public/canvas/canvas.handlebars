@@ -23,6 +23,11 @@
 		<button type="button" id="saveCanvas" class="saveImg">Save Canvas</button>
 	</div>
 	<script src="/socket.io/socket.io.js"></script>
+	<script>
+    // room name for socket sent by express/handlebars
+    const roomName = '{{ roomName }}';
+    console.log(roomName);
+  </script>
 	<script src="./canvas.js"></script>
 	<script>
 		
