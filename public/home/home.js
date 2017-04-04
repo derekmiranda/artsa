@@ -26,7 +26,24 @@ function getUserNumber() {
   });
 }
 
+const newRoomLink = (() => {
+  let roomNo = 1;
+  return () => {
+    const newLinkDiv = $(
+      `<a href='/host/host.html'>
+        <div class='link-div well'>
+        </div>
+      </a>`
+    );
+    newLinkDiv.find('div').text(`Room ${roomNo}`);
+    roomNo += 1;
+    return newLinkDiv;
+  }
+})();
+
 $(document).ready(function () {
+
+  const rooms = $('#rooms');
 
   // Check database at intervals for updates in user number
   setInterval(function () {
@@ -35,7 +52,8 @@ $(document).ready(function () {
     if (globalUserNum > 1) $('#room1').text('Room 1:  ' + globalUserNum.toString() + ' Users');
   }, 500);
 
-  $('#rooms').on('click', 'a', function (event) {
+  // Go to room
+  rooms.on('click', 'a', function (event) {
     let user = event.target.innerHTML.slice(9, 10);
     user = parseInt(user) + 1;
 
@@ -54,5 +72,12 @@ $(document).ready(function () {
     createUser(user);
     window.open(roomUrl);
   });
+
+  // Add new room to room list
+  $('form#create-room').submit(event => {
+    event.preventDefault();
+    
+    rooms.append(newRoomLink());
+  })
 
 });
