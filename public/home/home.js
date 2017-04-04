@@ -2,6 +2,10 @@
 const URL = 'http://localhost:3000';
 let globalUserNum = 0;
 
+// if (process.env.NODE_ENV === 'test') {
+//   writeLocation = `${__dirname}/../test/db.test.json`;
+//   //gamesList = require(writeLocation);
+// }
 function sendObj(user, notes) {
   var obj = {
     user: user,
