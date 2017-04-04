@@ -140,11 +140,6 @@
     }
   }
 
-  // Tap event for choosing colors on mobile 
-  document.getElementsByClassName("colors").on("tap", function(){
-    
-  })
-
   //Creates a click event listener for each color div written in canvas.html
   for (let i = 0; i < colors.length; i++) {
     colors[i].addEventListener('click', onColorUpdate, false);
@@ -256,11 +251,12 @@
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     //Emits 'cleared' to server.js (line 13)
-   
+
+
     socket.emit('cleared', roomName, {
       Darrick: 'Is the Best!',
     });
-  
+  }
 
   function saveCanvas() {
     var canvas = document.getElementsByClassName('whiteboard')[0]; console.log(!!canvas);
