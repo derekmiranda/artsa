@@ -58,17 +58,38 @@ app.put('/notes/:user', userController.updateUser);
 
 function onDrawConnection(socket) {
   console.log('Drawing socket connected');
+
+  // Disconnect event
+  socket.on('disconnect', (roomName) => {
+    // search for room w/in rooms and increment numUsers
+    const emittingRoom = rooms.find(room => room.name === roomName);
+
+    if (emittingRoom) {
+      emittingRoom.numUsers -= 1;
+      console.log(`Num of users in ${emittingRoom.name}: ${emittingRoom.numUsers}`);
+    }
+  })
+
   // Join room
-  socket.on('room', (room) => {
-    console.log('Someone joined ' + room);
-    socket.join(room)
+  socket.on('room', (roomName) => {
+    console.log('Someone joined ' + roomName);
+
+    // search for room w/in rooms and increment numUsers
+    const emittingRoom = rooms.find(room => room.name === roomName);
+
+    if (emittingRoom) {
+      emittingRoom.numUsers += 1;
+      console.log(`Num of users in ${emittingRoom.name}: ${emittingRoom.numUsers}`);
+    }
+
+    socket.join(roomName);
   });
 
   //Waits for drawing emit from canvas.js THEN broadcasts & emits the data to socket in canvas.js
-  socket.on('drawing', (room, data) => socket.broadcast.to(room).emit('drawing', data));
+  socket.on('drawing', (roomName, data) => socket.broadcast.to(roomName).emit('drawing', data));
 
   //Waits for cleared emit from canvas.js THEN broadcasts & emits data to socket in canvas.js
-  socket.on('cleared', (room, data) => socket.broadcast.to(room).emit('clearCanvas', data));
+  socket.on('cleared', (roomName, data) => socket.broadcast.to(roomName).emit('clearCanvas', data));
 
 }
 
@@ -77,6 +98,11 @@ const drawNsp = io.of('/draw');
 drawNsp.on('connection', onDrawConnection);
 
 // Rooms namespace: save and show available rooms to users
+function Room(name) {
+  this.name = name;
+  this.numUsers = 0;
+}
+
 const rooms = [];
 const roomsNsp = io.of('/rooms');
 
@@ -86,23 +112,23 @@ roomsNsp.on('connection', (roomsSocket) => {
   // adds room to memory
   roomsSocket.on('createRoom', (roomName, cb) => {
     // check if room already there
-    if (rooms.indexOf(roomName) > -1) {
-      console.log('Room name already added');
+    if (rooms.some(room => room.name === roomName)) {
       return;
     }
 
-    rooms.push(roomName);
+    const newRoom = new Room(roomName);
+    rooms.push(newRoom);
 
     // call cb on roomName
     // in this case, add room div to original emitting client (home.js)
-    cb(roomName);
-    roomsSocket.broadcast.emit('addRoomDiv', roomName);
+    cb(newRoom.name);
+    roomsSocket.broadcast.emit('addRoomDiv', newRoom.name);
   });
 
   // gives new connection current rooms
   roomsSocket.on('addExisting', (cb) => {
     console.log('Adding current rooms to new connection');
-    cb(rooms);
+    cb(rooms.map(room => room.name));
   })
 });
 

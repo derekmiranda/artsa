@@ -110,7 +110,7 @@ $(document).ready(function () {
   function createRoomDiv(roomName) {
     const newLinkDiv = $(
       `<div class='link-div well'>
-          <a href="/rooms/${roomName}">
+          <a href="./rooms/${roomName}">
           </a>
         </div>`
     );
