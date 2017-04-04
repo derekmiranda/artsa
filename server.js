@@ -64,12 +64,18 @@ const roomsNsp = io.of('/rooms');
 roomsNsp.on('connection', (roomsSocket) => {
   console.log('Connection to lobby');
 
-  roomsSocket.on('createRoom', (roomName, cb) => {
+  roomsSocket.on('createRoom', (roomName) => {
+    console.log(rooms);
+    // check if room already there
+    if (rooms.indexOf(roomName) > -1) {
+      console.log('Room name already added');
+      return;
+    }
+
     console.log('Creating room: ' + roomName);
     rooms.push(roomName);
-    cb(roomName);
+    roomsSocket.emit('addRoomDiv', roomName);
   });
-  
 });
 
 http.listen(PORT, () => console.log(`Listening on PORT: ${PORT}`));

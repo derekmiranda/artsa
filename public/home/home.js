@@ -66,25 +66,31 @@ $(document).ready(function () {
     // Rooms socket namespace
     const roomsSocket = io('/rooms');
 
+    // add room divs on successful name submit
+    roomsSocket.on('addRoomDiv', (roomName) => {
+      const newRoomDiv = createRoomDiv(roomName);
+      roomDivs.push(newRoomDiv);
+      rooms.append(newRoomDiv);
+    });
+
     // Add new room to room list
     $('form#create-room').submit((event, elem) => {
       event.preventDefault();
-      roomsSocket.emit('createRoom', roomNameInput.val(), (roomName) => {
-        const newRoomDiv = createRoomDiv(roomName);
-        roomDivs.push(newRoomDiv);
-        rooms.append(newRoomDiv);
-      });
+      const roomNameVal = roomNameInput.val().trim();
+      if (!roomNameVal) return false;
+
+      roomsSocket.emit('createRoom', roomNameVal);
     });
   }
 
-  function createRoomDiv(roomName) {
+  function createRoomDiv(roomName, link = "'/host/host.html'") {
     const newLinkDiv = $(
-      `<a href='/host/host.html'>
-        <div class='link-div well'>
-        </div>
-      </a>`
+      `<div class='link-div well'>
+          <a href=${link}>
+          </a>
+        </div>`
     );
-    newLinkDiv.find('div').text(roomName);
+    newLinkDiv.find('a').text(roomName);
     return newLinkDiv;
   }
 
