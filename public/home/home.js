@@ -107,10 +107,10 @@ $(document).ready(function () {
     roomsSocket.on('addRoomDiv', appendRoomDiv);
   }
 
-  function createRoomDiv(roomName, room = "room1") {
+  function createRoomDiv(roomName) {
     const newLinkDiv = $(
       `<div class='link-div well'>
-          <a href="/rooms/${room}">
+          <a href="/rooms/${roomName}">
           </a>
         </div>`
     );
