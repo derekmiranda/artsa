@@ -74,9 +74,8 @@ $(document).ready(function () {
 
     // Adds rooms previously before going to home page
     function addExistingRooms(rooms) {
-      console.log('Adding rooms: ' + rooms);
       rooms.forEach(room => {
-        const roomDiv = createRoomDiv(room);
+        const roomDiv = createRoomDiv(room.name, room.clients.length);
         roomDivs.push(roomDiv);
         roomsContainer.append(roomDiv);
       });
@@ -88,7 +87,6 @@ $(document).ready(function () {
 
     // append room div to UI
     function appendRoomDiv(roomName) {
-      console.log('Adding room: ' + roomName);
       const newRoomDiv = createRoomDiv(roomName);
       roomDivs.push(newRoomDiv);
       roomsContainer.append(newRoomDiv);
@@ -98,24 +96,57 @@ $(document).ready(function () {
     $('form#create-room').submit((event, elem) => {
       event.preventDefault();
       const roomNameVal = roomNameInput.val().trim();
+
+      // clear input box
+      roomNameInput.val('');
+
       if (!roomNameVal) return false;
 
       roomsSocket.emit('createRoom', roomNameVal, appendRoomDiv);
     });
 
-    // add room divs on successful name submit
+    // add room divs on valid name submit
     roomsSocket.on('addRoomDiv', appendRoomDiv);
+
+    function updateUserCount(roomName, numUsers) {
+      // get roomName span tag w/ roomName inside
+      const roomNameTag = $(`span.roomName:contains(${roomName})`);
+
+      // get sibling of roomNameTag to get numUsersTag and tag w/ grammar-sensitive "user"
+      const numUsersTag = roomNameTag.siblings('span.numUsers');
+      const userStrTag = roomNameTag.siblings('span.userStr');
+
+      // change num w/in numUsersTag
+      numUsersTag.text(numUsers);
+
+      // adjust "users" if only 1 user in room
+      userStrTag.text(singleOrPluralUsers(numUsers));
+    };
+
+    roomsSocket.on('updateUserCount', updateUserCount);
   }
 
-  function createRoomDiv(roomName) {
+  function createRoomDiv(roomName, numUsers = 0) {
     const newLinkDiv = $(
       `<div class='link-div well'>
-          <a href="/rooms/${roomName}">
+          <a href="./rooms/${roomName}">
           </a>
         </div>`
     );
-    newLinkDiv.find('a').text(roomName);
+
+    // writes "user" if num of users is 1
+    // o.w. "users"
+    // because grammar
+    newLinkDiv.find('a').append(
+      `<span class='roomName'>${roomName}</span>: 
+      <span class='numUsers'>${numUsers}</span> 
+      <span class='userStr'>${singleOrPluralUsers(numUsers)}</span>`
+    );
     return newLinkDiv;
+  }
+
+  function singleOrPluralUsers(numUsers) {
+    return (numUsers === 1) ? 'user' : 'users';
   }
 
 });

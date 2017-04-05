@@ -8,28 +8,38 @@
 //Entire document contained in an anonymous function that calls itself
 (() => {
 
+  //Creates the socket instance, canvas, colors, and 2d context of the canvas
+  const socket = io('/draw');
+  const canvas = document.getElementsByClassName('whiteboard')[0];
+  const context = canvas.getContext('2d');
+
   //color pick
   $("#yoyo").spectrum({
-  color: "#f00"
-  })
+    color: "#f00"
+  });
+
+  // add click event to color picker to reenable drawing
+  $('.sp-replacer.sp-light').click(() => {
+    context.globalCompositeOperation = "source-over";
+  });
 
   //extracting numbers from color picker values
-  function grabNums(str){
+  function grabNums(str) {
     let finalValues = [];
     let currentNum = [];
-    let numbers="0123456789".split("")
+    let numbers = "0123456789".split("")
 
-    for(let i=0; i < str.length; i++){
-      if (numbers.indexOf(str[i]) !== -1){
+    for (let i = 0; i < str.length; i++) {
+      if (numbers.indexOf(str[i]) !== -1) {
         currentNum.push(str[i])
-      } else if (currentNum.length >= 1){
+      } else if (currentNum.length >= 1) {
         currentNum.join("");
         finalValues.push(currentNum);
         currentNum = [];
       }
     }
 
-    return finalValues.map(function(e){
+    return finalValues.map(function (e) {
       return Number(e.join(""));
     });
   }
@@ -52,14 +62,14 @@
     s /= 100;
     v /= 100;
 
-    if(s == 0) {
-        // Achromatic (grey)
-        r = g = b = v;
-        return [
-            Math.round(r * 255),
-            Math.round(g * 255),
-            Math.round(b * 255)
-        ];
+    if (s == 0) {
+      // Achromatic (grey)
+      r = g = b = v;
+      return [
+        Math.round(r * 255),
+        Math.round(g * 255),
+        Math.round(b * 255)
+      ];
     }
 
     h /= 60; // sector 0 to 5
@@ -69,61 +79,53 @@
     q = v * (1 - s * f);
     t = v * (1 - s * (1 - f));
 
-    switch(i) {
-        case 0:
-            r = v;
-            g = t;
-            b = p;
-            break;
+    switch (i) {
+      case 0:
+        r = v;
+        g = t;
+        b = p;
+        break;
 
-        case 1:
-            r = q;
-            g = v;
-            b = p;
-            break;
+      case 1:
+        r = q;
+        g = v;
+        b = p;
+        break;
 
-        case 2:
-            r = p;
-            g = v;
-            b = t;
-            break;
+      case 2:
+        r = p;
+        g = v;
+        b = t;
+        break;
 
-        case 3:
-            r = p;
-            g = q;
-            b = v;
-            break;
+      case 3:
+        r = p;
+        g = q;
+        b = v;
+        break;
 
-        case 4:
-            r = t;
-            g = p;
-            b = v;
-            break;
+      case 4:
+        r = t;
+        g = p;
+        b = v;
+        break;
 
-        default: // case 5:
-            r = v;
-            g = p;
-            b = q;
+      default: // case 5:
+        r = v;
+        g = p;
+        b = q;
     }
 
     return [
-        Math.round(r * 255),
-        Math.round(g * 255),
-        Math.round(b * 255)
+      Math.round(r * 255),
+      Math.round(g * 255),
+      Math.round(b * 255)
     ];
-}
+  }
 
-function rgbString(arr){
-  return "rgb(" + arr[0].toString() + ", " + arr[1].toString() + ", " + arr[2].toString() + ")";
-}
-
-
-  //Creates the socket instance, canvas, colors, and 2d context of the canvas
-  const socket = io('/draw');
-  const canvas = document.getElementsByClassName('whiteboard')[0];
-  const colors = document.getElementsByClassName('color');
-  const context = canvas.getContext('2d');
-  const url = new URL(window.location);
+  function rgbString(arr) {
+    return "rgb(" + arr[0].toString() + ", " + arr[1].toString() + ", " + arr[2].toString() + ")";
+  }
 
   // connect confirm
   socket.on('connect', () => {
@@ -202,7 +204,8 @@ function rgbString(arr){
         ctx.moveTo(ongoingTouches[idx].pageX, ongoingTouches[idx].pageY);
         console.log("ctx.lineTo(" + touches[i].pageX + ", " + touches[i].pageY + ");");
         ctx.lineTo(touches[i].pageX, touches[i].pageY);
-        ctx.lineWidth = 4;
+        ctx.lineWidth = 5;
+        ctx.globalCompositeOperation = "source-over";
         ctx.strokeStyle = current.color;
         ctx.stroke();
 
@@ -250,13 +253,15 @@ function rgbString(arr){
     }
   }
 
-  //Creates a click event listener for each color div written in canvas.html
-  // for (let i = 0; i < colors.length; i++) {
-  //
-  //   colors[i].addEventListener('click', onColorUpdate, false);
-  // }
+  //Creates a click event listener for eraser
+  const eraser = document.getElementById('eraser');
+  eraser.addEventListener('click', onEraser, false);
 
-
+  //Retrieves the specific color element from the DOM & sets current variable to new color value
+  function onEraser(e) {
+    context.globalCompositeOperation = "destination-out";
+    context.strokeStyle = 'transparent black';
+  }
 
   //Socket picks up the emit from socket (line 10) in server.js and passes the data to onDrawingEvent
   socket.on('drawing', onDrawingEvent);
@@ -269,6 +274,9 @@ function rgbString(arr){
   function drawLine(x0, y0, x1, y1, color, emit) {
     context.beginPath();
 
+    // round line strokes
+    context.lineCap = 'round';
+
     //Moves the path to the specified point in the canvas, without creating a line
     context.moveTo(x0, y0);
 
@@ -277,16 +285,17 @@ function rgbString(arr){
 
     //DICTATES THE COLOR OF STROKE
     let colorVal = grabNums($("#yoyo").val())
-    context.strokeStyle = rgbString(hsvToRgb(colorVal[0], colorVal[1], colorVal[2]))
 
-    //Checks if client has selected the eraser and makes lineWidth larger for faster erasing
-    if (context.strokeStyle == '#ffffff') {
-      context.lineWidth = 100;
+    // brush color
+    context.strokeStyle = rgbString(hsvToRgb(colorVal[0], colorVal[1], colorVal[2]));
+
+    // brush width
+    // bigger if erasing
+    if (context.globalCompositeOperation === 'destination-out') {
+      context.lineWidth = 10;
     } else {
       context.lineWidth = 5;
     }
-
-
 
     //Actually draws the path you have defined with all those moveTo() and lineTo() methods
     context.stroke();
@@ -330,11 +339,6 @@ function rgbString(arr){
     current.y = e.clientY;
   }
 
-  //Retrieves the specific color element from the DOM & sets current variable to new color value
-  function onColorUpdate(e) {
-    current.color = e.target.className.split(' ')[1];
-  }
-
   //This limits the number of events per second. Functional without it, but limits burdening the server with updates
   function throttle(callback, delay) {
     let previousCall = new Date().getTime();
@@ -363,31 +367,23 @@ function rgbString(arr){
 
   //Triggered off Clear Canvas button click
   function clearCanvas() {
-    let canvas = document.getElementsByClassName('whiteboard')[0];
-    let context = canvas.getContext('2d');
-
     //Clears the canvas content
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     //Emits 'cleared' to server.js (line 13)
-
-
     socket.emit('cleared', roomName, {
       Darrick: 'Is the Best!',
     });
   }
 
   function saveCanvas() {
-    var canvas = document.getElementsByClassName('whiteboard')[0]; console.log(!!canvas);
+    console.log(!!canvas);
     var fullQuality = canvas.toDataURL();
     window.open(fullQuality);
   }
 
   //Accepts mass emit from line 14 of server.js to clear out it's context
   socket.on('clearCanvas', function (data) {
-    let canvas = document.getElementsByClassName('whiteboard')[0];
-    let context = canvas.getContext('2d');
-
     //Clears the canvas content
     context.clearRect(0, 0, canvas.width, canvas.height);
   });

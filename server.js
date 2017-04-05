@@ -53,28 +53,13 @@ app.get('/notes/:user', userController.getUser);
 app.put('/notes/:user', userController.updateUser);
 
 // // Delete a user from the database
-// // localhost://3000/user/"name"
 // app.delete('/:name', userController.deleteUser);
 
-function onDrawConnection(socket) {
-  console.log('Drawing socket connected');
-  // Join room
-  socket.on('room', (room) => {
-    console.log('Someone joined ' + room);
-    socket.join(room)
-  });
-
-  //Waits for drawing emit from canvas.js THEN broadcasts & emits the data to socket in canvas.js
-  socket.on('drawing', (room, data) => socket.broadcast.to(room).emit('drawing', data));
-
-  //Waits for cleared emit from canvas.js THEN broadcasts & emits data to socket in canvas.js
-  socket.on('cleared', (room, data) => socket.broadcast.to(room).emit('clearCanvas', data));
-
+// used to store name and list of connected clients in a room
+function Room(name) {
+  this.name = name;
+  this.clients = [];
 }
-
-//On initial server connection, socket passed to onDrawConnection function.
-const drawNsp = io.of('/draw');
-drawNsp.on('connection', onDrawConnection);
 
 // Rooms namespace: save and show available rooms to users
 const rooms = [];
@@ -86,17 +71,18 @@ roomsNsp.on('connection', (roomsSocket) => {
   // adds room to memory
   roomsSocket.on('createRoom', (roomName, cb) => {
     // check if room already there
-    if (rooms.indexOf(roomName) > -1) {
-      console.log('Room name already added');
+    if (rooms.some(room => room.name === roomName)) {
       return;
     }
 
-    rooms.push(roomName);
+    // add new room to rooms array
+    const newRoom = new Room(roomName);
+    rooms.push(newRoom);
 
     // call cb on roomName
     // in this case, add room div to original emitting client (home.js)
-    cb(roomName);
-    roomsSocket.broadcast.emit('addRoomDiv', roomName);
+    cb(newRoom.name);
+    roomsSocket.broadcast.emit('addRoomDiv', newRoom.name);
   });
 
   // gives new connection current rooms
@@ -104,6 +90,74 @@ roomsNsp.on('connection', (roomsSocket) => {
     console.log('Adding current rooms to new connection');
     cb(rooms);
   })
+
+  function onDrawConnection(socket) {
+    // storing room name
+    let storedRoomName;
+
+    // Join room
+    socket.on('room', (roomName) => {
+      storedRoomName = roomName;
+
+      // search for room w/in rooms and push new client id
+      const emittingRoom = rooms.find(room => room.name === roomName);
+
+      if (
+        // stop function early if no emitting room found
+        // prevent errors caused by nodemon server restart
+        !emittingRoom ||
+        // or if socket.id already pushed,
+        // to prevent client id's from being pushed twice
+        // TODO: due to weird bug where client id gets pushed twice
+        // on commit a2555e87d3a70b55c84fcebdec790726426908e6
+        emittingRoom.clients.indexOf(socket.id) > -1
+      ) return;
+      emittingRoom.clients.push(socket.id);
+      socket.join(roomName);
+
+      // tell home.js to update num users for that room
+      roomsNsp.emit('updateUserCount', emittingRoom.name, emittingRoom.clients.length);
+    });
+
+    //Waits for drawing emit from canvas.js THEN broadcasts & emits the data to socket in canvas.js
+    socket.on('drawing', (roomName, data) => socket.broadcast.to(roomName).emit('drawing', data));
+
+    //Waits for cleared emit from canvas.js THEN broadcasts & emits data to socket in canvas.js
+    socket.on('cleared', (roomName, data) => socket.broadcast.to(roomName).emit('clearCanvas', data));
+
+    // Disconnect event
+    socket.on('disconnect', () => {
+      // no stored room name or empty rooms array
+      if (!storedRoomName || !rooms.length) return;
+
+      // search for room w/in rooms and remove id
+
+      // index of id to remove
+      const targetRoom = rooms.find(room => room.name === storedRoomName);
+
+      // if can't find target room, exit
+      if (!targetRoom) return;
+
+      const disconnIdx = targetRoom.clients.indexOf(socket.id);
+
+      // return if can't find socket.id in targetRoom clients
+      // TODO: part of bug where client id gets pushed twice
+      // inside Room.client array
+      if (disconnIdx < 0) return;
+
+      // remove id from room
+      targetRoom.clients.splice(disconnIdx, 1);
+
+      // tell home.js to update num users for that room
+      roomsNsp.emit('updateUserCount', targetRoom.name, targetRoom.clients.length);
+    });
+  }
+
+  //On initial server connection, socket passed to onDrawConnection function.
+  const drawNsp = io.of('/draw');
+  drawNsp.on('connection', onDrawConnection);
+
+
 });
 
 http.listen(PORT, () => console.log(`Listening on PORT: ${PORT}`));

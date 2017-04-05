@@ -75,22 +75,16 @@ html, body {
 .colors {
   position: fixed;
 }
-.colors button:hover {
-  background-color: mediumpurple;
-  border-radius: 3px;
+#eraser {
+  background: #ccc url(eraser.png); 
+  width: 48px; 
+  height: 48px
 }
-.color {
-  display: inline-block;
-  height: 48px;
-  width: 48px;
-}
-.color.black { background-color: black; }
-.color.red { background-color: red; }
-.color.green { background-color: green; }
-.color.blue { background-color: blue; }
-.color.yellow { background-color: yellow; }
-.color.white { background: #ccc url(eraser.png); width: 48px; height: 48px};
 
+/* Custom brush */
+canvas {
+  cursor: crosshair;
+}
 
 @media screen and (min-width: 1200px){
   #htmlCanvas {
