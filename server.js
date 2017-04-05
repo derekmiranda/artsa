@@ -63,6 +63,7 @@ function Room(name) {
 
 // Rooms namespace: save and show available rooms to users
 const rooms = [];
+const passwords = [];
 const roomsNsp = io.of('/rooms');
 
 roomsNsp.on('connection', (roomsSocket) => {
