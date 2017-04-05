@@ -127,6 +127,12 @@
     return "rgb(" + arr[0].toString() + ", " + arr[1].toString() + ", " + arr[2].toString() + ")";
   }
 
+  function getCurrentColor() {
+    //DICTATES THE COLOR OF STROKE
+    let colorVal = grabNums($("#yoyo").val());
+    return rgbString(hsvToRgb(colorVal[0], colorVal[1], colorVal[2]))
+  }
+
   // connect confirm
   socket.on('connect', () => {
     socket.emit('room', roomName || 'default');
@@ -181,7 +187,7 @@
       //var color = colorForTouch(touches[i]);
       ctx.beginPath();
       ctx.arc(touches[i].pageX, touches[i].pageY, 4, 0, 2 * Math.PI, false);  // a circle at the start
-      ctx.fillStyle = current.color;
+      ctx.fillStyle = getCurrentColor();
       ctx.fill();
       console.log("touchstart:" + i + ".");
     }
@@ -206,7 +212,7 @@
         ctx.lineTo(touches[i].pageX, touches[i].pageY);
         ctx.lineWidth = 5;
         ctx.globalCompositeOperation = "source-over";
-        ctx.strokeStyle = current.color;
+        ctx.strokeStyle = getCurrentColor();
         ctx.stroke();
 
         ongoingTouches.splice(idx, 1, copyTouch(touches[i]));  // swap in the new touch record
@@ -230,7 +236,7 @@
 
       if (idx >= 0) {
         ctx.lineWidth = 4;
-        ctx.fillStyle = current.color;
+        ctx.fillStyle = getCurrentColor();
         ctx.beginPath();
         ctx.moveTo(ongoingTouches[idx].pageX, ongoingTouches[idx].pageY);
         ctx.lineTo(touches[i].pageX, touches[i].pageY);
@@ -283,11 +289,8 @@
     //Adds a new point and creates a line TO that point FROM the last specified point
     context.lineTo(x1, y1);
 
-    //DICTATES THE COLOR OF STROKE
-    let colorVal = grabNums($("#yoyo").val())
-
     // brush color
-    context.strokeStyle = rgbString(hsvToRgb(colorVal[0], colorVal[1], colorVal[2]));
+    context.strokeStyle = color;
 
     // brush width
     // bigger if erasing
@@ -328,13 +331,13 @@
   function onMouseUp(e) {
     if (!drawing) { return; }
     drawing = false;
-    drawLine(current.x, current.y, e.clientX, e.clientY, current.color, true);
+    drawLine(current.x, current.y, e.clientX, e.clientY, getCurrentColor(), true);
   }
 
   //Draws line based on movement of mouse on x & y axis
   function onMouseMove(e) {
     if (!drawing) { return; }
-    drawLine(current.x, current.y, e.clientX, e.clientY, current.color, true);
+    drawLine(current.x, current.y, e.clientX, e.clientY, getCurrentColor(), true);
     current.x = e.clientX;
     current.y = e.clientY;
   }
