@@ -101,8 +101,8 @@ $(document).ready(function () {
 
       if (!roomNameVal) return false;
       const roomPassword = roomPasswordInput.val().trim();
-      console.log(roomPassword)
-      roomsSocket.emit('createRoom', roomNameVal, appendRoomDiv);
+      console.log(roomPassword);
+      roomsSocket.emit('createRoom', roomNameVal, roomPassword, appendRoomDiv);
     });
 
     // add room divs on valid name submit

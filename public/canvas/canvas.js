@@ -139,7 +139,6 @@
       roomName || 'default',
       // show previous drawings
       function restoreCanvas(strokeData) {
-        console.log('Redrawing previous canvas...');
         // go thru each stroke point and redraw them
         strokeData.forEach(strokeLine => {
           const w = canvas.width;
@@ -403,7 +402,6 @@
   }
 
   function saveCanvas() {
-    console.log(!!canvas);
     var fullQuality = canvas.toDataURL();
     window.open(fullQuality);
   }

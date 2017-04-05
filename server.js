@@ -73,7 +73,7 @@ roomsNsp.on('connection', (roomsSocket) => {
   console.log('Connection to lobby');
 
   // adds room to memory
-  roomsSocket.on('createRoom', (roomName, cb) => {
+  roomsSocket.on('createRoom', (roomName, roomPassword, cb) => {
     // check if room already there
     if (rooms.some(room => room.name === roomName)) {
       return;
