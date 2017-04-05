@@ -262,7 +262,10 @@
   //Creates a click event listener for eraser
   const eraser = document.getElementById('eraser');
   eraser.addEventListener('click', onEraser, false);
+  eraser.addEventListener('touchstart', onEraser, false)
+  eraser.addEventListener('touchmove', onEraser, false)
 
+  //eraser.addEventListener('touchstart', onEraser, false)
   //Retrieves the specific color element from the DOM & sets current variable to new color value
   function onEraser(e) {
     context.globalCompositeOperation = "destination-out";
