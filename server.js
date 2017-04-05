@@ -85,8 +85,8 @@ roomsNsp.on('connection', (roomsSocket) => {
 
     // call cb on roomName
     // in this case, add room div to original emitting client (home.js)
-    cb(newRoom.name);
-    roomsSocket.broadcast.emit('addRoomDiv', newRoom.name);
+    cb(newRoom.name, newRoom.password);
+    roomsSocket.broadcast.emit('addRoomDiv', newRoom.name, newRoom.password);
   });
 
   // gives new connection current rooms

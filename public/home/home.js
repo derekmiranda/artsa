@@ -75,7 +75,7 @@ $(document).ready(function () {
     // Adds rooms previously before going to home page
     function addExistingRooms(rooms) {
       rooms.forEach(room => {
-        const roomDiv = createRoomDiv(room.name, room.clients.length);
+        const roomDiv = createRoomDiv(room.name, room.password, room.clients.length);
         roomDivs.push(roomDiv);
         roomsContainer.append(roomDiv);
       });
@@ -86,7 +86,7 @@ $(document).ready(function () {
 
     // append room div to UI
     function appendRoomDiv(roomName, roomPassword) {
-      const newRoomDiv = createRoomDiv(roomName);
+      const newRoomDiv = createRoomDiv(roomName, roomPassword);
       roomDivs.push(newRoomDiv);
       roomsContainer.append(newRoomDiv);
     }
@@ -95,12 +95,12 @@ $(document).ready(function () {
     $('form#create-room').submit((event, elem) => {
       event.preventDefault();
       const roomNameVal = roomNameInput.val().trim();
-
-      // clear input box
-      roomNameInput.val('');
-
       const roomPassword = roomPasswordInput.val().trim();
-      
+
+      // clear input boxes
+      roomNameInput.val('');
+      roomPasswordInput.val('');
+
       // don't submit if empty
       if (!roomNameVal) return false;
       roomsSocket.emit('createRoom', roomNameVal, roomPassword, appendRoomDiv);
@@ -127,39 +127,48 @@ $(document).ready(function () {
     roomsSocket.on('updateUserCount', updateUserCount);
   }
 
-  function createRoomDiv(roomName, numUsers = 0) {
-    const roomPassword = roomPasswordInput.val().trim();
+  function createRoomDiv(roomName, roomPassword, numUsers = 0) {
     var newLinkDiv;
-    if (roomPassword.length > 0) {
-     newLinkDiv = $(
+    if (roomPassword) {
+      newLinkDiv = $(
         `<div class='link-div well'>
-          <a href="./rooms/${roomName}">
-          </a>
-            <form><input class='needPassword' type='password' placeholder='Password Required'><button type = 'submit' class ='submitPassword' >Submit</input></form > 
+          <p class="roomInfo"></p>
+            <form>
+              <input class='needPassword' type='password' placeholder='Password Required'>
+              <button type='submit' class='submitPassword'>Submit</input>
+            </form > 
         </div>`
       );
-    }else{
 
-     newLinkDiv = $(
-      `<div class='link-div well'>
-          <a href="./rooms/${roomName}">
-          </a>
+      // adding submit handler to password form
+      newLinkDiv.find('form').submit(event, form => {
+        // prevent refreshing
+        event.preventDefault();
+
+        // check if typed password equal to room's password
+        const typedPassword = newLinkDiv.find('input.needPassword').val();
+        if (typedPassword === roomPassword) {
+          window.location.replace('/rooms/' + roomName);
+        }
+      });
+
+    } else {
+
+      newLinkDiv = $(
+        `<div class='link-div well'>
+          <a class="roomInfo" href="./rooms/${roomName}"></a>
         </div>`
-    );
+      );
     }
-    passwordArr.push({ roomName: roomPassword })
-    console.log(passwordArr)
 
     // writes "user" if num of users is 1
     // o.w. "users"
     // because grammar
-    newLinkDiv.find('a').append(
+    newLinkDiv.find('.roomInfo').append(
       `<span class='roomName'>${roomName}</span>: 
       <span class='numUsers'>${numUsers}</span> 
       <span class='userStr'>${singleOrPluralUsers(numUsers)}</span>`
     );
-
-    // newLinkDiv.find('form').submit()
 
     return newLinkDiv;
   }
