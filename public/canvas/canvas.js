@@ -280,7 +280,8 @@
   onResize();
 
   //Responsible for drawing the line, parameters received from onMouseUp or onMouseMove or onDrawingEvent
-  function drawLine(x0, y0, x1, y1, color, emit) {
+  // compositingOp - defines how brush draws to canvas (i.e. brush or eraser)
+  function drawLine(x0, y0, x1, y1, color, compositingOp, emit) {
     context.beginPath();
 
     // round line strokes
@@ -297,11 +298,14 @@
 
     // brush width
     // bigger if erasing
-    if (context.globalCompositeOperation === 'destination-out') {
+    if (compositingOp === 'destination-out') {
       context.lineWidth = 10;
     } else {
       context.lineWidth = 5;
     }
+
+    // set compositing operation
+    context.globalCompositeOperation = compositingOp;
 
     //Actually draws the path you have defined with all those moveTo() and lineTo() methods
     context.stroke();
@@ -319,6 +323,7 @@
       y0: y0 / h,
       x1: x1 / w,
       y1: y1 / h,
+      compositingOp: compositingOp,
       color: color
     });
   }
@@ -334,13 +339,17 @@
   function onMouseUp(e) {
     if (!drawing) { return; }
     drawing = false;
-    drawLine(current.x, current.y, e.clientX, e.clientY, getCurrentColor(), true);
+    drawLine(current.x, current.y, e.clientX, e.clientY,
+      getCurrentColor(), context.globalCompositeOperation, true
+    );
   }
 
   //Draws line based on movement of mouse on x & y axis
   function onMouseMove(e) {
     if (!drawing) { return; }
-    drawLine(current.x, current.y, e.clientX, e.clientY, getCurrentColor(), true);
+    drawLine(current.x, current.y, e.clientX, e.clientY,
+      getCurrentColor(), context.globalCompositeOperation, true
+    );
     current.x = e.clientX;
     current.y = e.clientY;
   }
@@ -361,7 +370,9 @@
   function onDrawingEvent(data) {
     let w = canvas.width;
     let h = canvas.height;
-    drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color);
+    drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h,
+      data.color, data.compositingOp
+    );
   }
 
   //Function to adjust canvas to size of window
