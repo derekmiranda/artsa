@@ -226,7 +226,16 @@
         //ctx.globalCompositeOperation = "source-over";
         ctx.strokeStyle = getCurrentColor();
         ctx.stroke();
-
+        let w = canvas.width;
+        let h = canvas.height;
+        socket.emit('drawing', roomName, {
+          x0: ongoingTouches[idx].pageX / w,
+          y0: ongoingTouches[idx].pageY / h,
+          x1: touches[i].pageX / w,
+          y1: touches[i].pageY / h,
+          compositingOp: ctx.globalCompositeOperation,
+          color: ctx.strokeStyle
+        });
         ongoingTouches.splice(idx, 1, copyTouch(touches[i]));  // swap in the new touch record
         console.log(".");
       } else {
