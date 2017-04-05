@@ -31,9 +31,11 @@ $(document).ready(function () {
       dataType: "json",
       contentType: "application/json"
     });
-    $('#saveDate').text('Saved at ' + new Date());
+    $('#saveDate').text('s a v e d !');
     //window.open(notesUrl);
   });
+
+
 
   $('#leave').on('click', function (event) {
     window.open(notesUrl);
