@@ -66,9 +66,6 @@ const rooms = [];
 const passwords = [];
 const roomsNsp = io.of('/rooms');
 
-// stores brush stroke data for redrawing on late clients
-let storedStrokeData = [];
-
 roomsNsp.on('connection', (roomsSocket) => {
   console.log('Connection to lobby');
 
@@ -95,6 +92,10 @@ roomsNsp.on('connection', (roomsSocket) => {
     cb(rooms);
   })
 
+  // stores brush stroke data for redrawing on late clients
+  // const storedStrokeData = [];
+  const storedStrokeData = {};
+
   function onDrawConnection(socket) {
     // storing room name
     let storedRoomName;
@@ -120,7 +121,8 @@ roomsNsp.on('connection', (roomsSocket) => {
       socket.join(roomName);
 
       // send previous stroke data to new clients
-      restore(storedStrokeData);
+      const prevRoomStrokes = storedStrokeData[roomName];
+      if (prevRoomStrokes) restore(prevRoomStrokes);
 
       // tell home.js to update num users for that room
       roomsNsp.emit('updateUserCount', emittingRoom.name, emittingRoom.clients.length);
@@ -128,7 +130,13 @@ roomsNsp.on('connection', (roomsSocket) => {
 
     //Waits for drawing emit from canvas.js THEN broadcasts & emits the data to socket in canvas.js
     socket.on('drawing', (roomName, data) => {
-      storedStrokeData.push(data);
+      // make new array for roomName initialized with first data point
+      if (!storedStrokeData[roomName]) {
+        storedStrokeData[roomName] = [data];
+      } else {
+        // store brush strokes
+        storedStrokeData[roomName].push(data);
+      }
       socket.broadcast.to(roomName).emit('drawing', data);
     });
 

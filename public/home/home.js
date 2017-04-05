@@ -34,13 +34,6 @@ function getUserNumber() {
 $(document).ready(function () {
   const roomsContainer = $('#rooms');
 
-  // Check database at intervals for updates in user number
-  // setInterval(function () {
-  //   getUserNumber();
-  //   if (globalUserNum === 1) $('#room1').text('Room 1:  ' + globalUserNum.toString() + ' User');
-  //   if (globalUserNum > 1) $('#room1').text('Room 1:  ' + globalUserNum.toString() + ' Users');
-  // }, 500);
-
   // // Go to room
   // roomsContainer.on('click', 'a', function (event) {
   //   let user = event.target.innerHTML.slice(9, 10);
