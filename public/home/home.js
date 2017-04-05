@@ -78,7 +78,7 @@ $(document).ready(function () {
     });
 
     // append room div to UI
-    function appendRoomDiv(roomName) {
+    function appendRoomDiv(roomName, roomPassword) {
       const newRoomDiv = createRoomDiv(roomName);
       roomDivs.push(newRoomDiv);
       roomsContainer.append(newRoomDiv);
@@ -134,6 +134,9 @@ $(document).ready(function () {
       <span class='numUsers'>${numUsers}</span> 
       <span class='userStr'>${singleOrPluralUsers(numUsers)}</span>`
     );
+
+    // newLinkDiv.find('form').submit()
+
     return newLinkDiv;
   }
 
