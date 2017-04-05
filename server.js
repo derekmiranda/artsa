@@ -66,6 +66,9 @@ const rooms = [];
 const passwords = [];
 const roomsNsp = io.of('/rooms');
 
+// stores brush stroke data for redrawing on late clients
+let storedStrokeData = [];
+
 roomsNsp.on('connection', (roomsSocket) => {
   console.log('Connection to lobby');
 
@@ -97,7 +100,7 @@ roomsNsp.on('connection', (roomsSocket) => {
     let storedRoomName;
 
     // Join room
-    socket.on('room', (roomName) => {
+    socket.on('room', (roomName, restore) => {
       storedRoomName = roomName;
 
       // search for room w/in rooms and push new client id
@@ -116,15 +119,26 @@ roomsNsp.on('connection', (roomsSocket) => {
       emittingRoom.clients.push(socket.id);
       socket.join(roomName);
 
+      // send previous stroke data to new clients
+      restore(storedStrokeData);
+
       // tell home.js to update num users for that room
       roomsNsp.emit('updateUserCount', emittingRoom.name, emittingRoom.clients.length);
     });
 
     //Waits for drawing emit from canvas.js THEN broadcasts & emits the data to socket in canvas.js
-    socket.on('drawing', (roomName, data) => socket.broadcast.to(roomName).emit('drawing', data));
+    socket.on('drawing', (roomName, data) => {
+      storedStrokeData.push(data);
+      socket.broadcast.to(roomName).emit('drawing', data);
+    });
 
     //Waits for cleared emit from canvas.js THEN broadcasts & emits data to socket in canvas.js
     socket.on('cleared', (roomName, data) => socket.broadcast.to(roomName).emit('clearCanvas', data));
+
+    // save current image for later clients
+    socket.on('saveImageData', (imageData) => {
+      storedImageData = imageData;
+    });
 
     // Disconnect event
     socket.on('disconnect', () => {

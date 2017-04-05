@@ -135,7 +135,20 @@
 
   // connect confirm
   socket.on('connect', () => {
-    socket.emit('room', roomName || 'default');
+    socket.emit('room',
+      roomName || 'default',
+      // show previous drawings
+      function restoreCanvas(strokeData) {
+        console.log('Redrawing previous canvas...');
+        // go thru each stroke point and redraw them
+        strokeData.forEach(strokeLine => {
+          const w = canvas.width;
+          const h = canvas.height;
+          drawLine(strokeLine.x0 * w, strokeLine.y0 * h, strokeLine.x1 * w, strokeLine.y1 * h,
+            strokeLine.color, strokeLine.compositingOp
+          );
+        });
+      });
   });
 
   let current = {
@@ -172,7 +185,6 @@
     }
     return -1;    // not found
   }
-
 
   function handleStart(evt) {
     evt.preventDefault();
