@@ -8,6 +8,116 @@
 //Entire document contained in an anonymous function that calls itself
 (() => {
 
+  //color pick
+  $("#yoyo").spectrum({
+  color: "#f00"
+  })
+
+  //extracting numbers from color picker values
+  function grabNums(str){
+    let finalValues = [];
+    let currentNum = [];
+    let numbers="0123456789".split("")
+
+    for(let i=0; i < str.length; i++){
+      if (numbers.indexOf(str[i]) !== -1){
+        currentNum.push(str[i])
+      } else if (currentNum.length >= 1){
+        currentNum.join("");
+        finalValues.push(currentNum);
+        currentNum = [];
+      }
+    }
+
+    return finalValues.map(function(e){
+      return Number(e.join(""));
+    });
+  }
+
+  //color picker value coverter
+  function hsvToRgb(h, s, v) {
+    var r, g, b;
+    var i;
+    var f, p, q, t;
+
+    // Make sure our arguments stay in-range
+    h = Math.max(0, Math.min(360, h));
+    s = Math.max(0, Math.min(100, s));
+    v = Math.max(0, Math.min(100, v));
+
+    // We accept saturation and value arguments from 0 to 100 because that's
+    // how Photoshop represents those values. Internally, however, the
+    // saturation and value are calculated from a range of 0 to 1. We make
+    // That conversion here.
+    s /= 100;
+    v /= 100;
+
+    if(s == 0) {
+        // Achromatic (grey)
+        r = g = b = v;
+        return [
+            Math.round(r * 255),
+            Math.round(g * 255),
+            Math.round(b * 255)
+        ];
+    }
+
+    h /= 60; // sector 0 to 5
+    i = Math.floor(h);
+    f = h - i; // factorial part of h
+    p = v * (1 - s);
+    q = v * (1 - s * f);
+    t = v * (1 - s * (1 - f));
+
+    switch(i) {
+        case 0:
+            r = v;
+            g = t;
+            b = p;
+            break;
+
+        case 1:
+            r = q;
+            g = v;
+            b = p;
+            break;
+
+        case 2:
+            r = p;
+            g = v;
+            b = t;
+            break;
+
+        case 3:
+            r = p;
+            g = q;
+            b = v;
+            break;
+
+        case 4:
+            r = t;
+            g = p;
+            b = v;
+            break;
+
+        default: // case 5:
+            r = v;
+            g = p;
+            b = q;
+    }
+
+    return [
+        Math.round(r * 255),
+        Math.round(g * 255),
+        Math.round(b * 255)
+    ];
+}
+
+function rgbString(arr){
+  return "rgb(" + arr[0].toString() + ", " + arr[1].toString() + ", " + arr[2].toString() + ")";
+}
+
+
   //Creates the socket instance, canvas, colors, and 2d context of the canvas
   const socket = io('/draw');
   const canvas = document.getElementsByClassName('whiteboard')[0];
@@ -34,10 +144,12 @@
   canvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
 
   //Creates a click event listener for each color div written in canvas.html
-  for (let i = 0; i < colors.length; i++) {
-    console.log(colors);
-    colors[i].addEventListener('click', onColorUpdate, false);
-  }
+  // for (let i = 0; i < colors.length; i++) {
+  //
+  //   colors[i].addEventListener('click', onColorUpdate, false);
+  // }
+
+
 
   //Socket picks up the emit from socket (line 10) in server.js and passes the data to onDrawingEvent
   socket.on('drawing', onDrawingEvent);
@@ -55,7 +167,10 @@
 
     //Adds a new point and creates a line TO that point FROM the last specified point
     context.lineTo(x1, y1);
-    context.strokeStyle = color;
+
+    //DICTATES THE COLOR OF STROKE
+    let colorVal = grabNums($("#yoyo").val())
+    context.strokeStyle = rgbString(hsvToRgb(colorVal[0], colorVal[1], colorVal[2]))
 
     //Checks if client has selected the eraser and makes lineWidth larger for faster erasing
     if (context.strokeStyle == '#ffffff') {
@@ -63,6 +178,8 @@
     } else {
       context.lineWidth = 5;
     }
+
+
 
     //Actually draws the path you have defined with all those moveTo() and lineTo() methods
     context.stroke();
