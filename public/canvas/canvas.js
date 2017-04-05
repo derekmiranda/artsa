@@ -222,10 +222,19 @@
         console.log("ctx.lineTo(" + touches[i].pageX + ", " + touches[i].pageY + ");");
         ctx.lineTo(touches[i].pageX, touches[i].pageY);
         ctx.lineWidth = 5;
-        ctx.globalCompositeOperation = "source-over";
+        //ctx.globalCompositeOperation = "source-over";
         ctx.strokeStyle = getCurrentColor();
         ctx.stroke();
-
+        let w = canvas.width;
+        let h = canvas.height;
+        socket.emit('drawing', roomName, {
+          x0: ongoingTouches[idx].pageX / w,
+          y0: ongoingTouches[idx].pageY / h,
+          x1: touches[i].pageX / w,
+          y1: touches[i].pageY / h,
+          compositingOp: ctx.globalCompositeOperation,
+          color: ctx.strokeStyle
+        });
         ongoingTouches.splice(idx, 1, copyTouch(touches[i]));  // swap in the new touch record
         console.log(".");
       } else {
@@ -273,9 +282,14 @@
   //Creates a click event listener for eraser
   const eraser = document.getElementById('eraser');
   eraser.addEventListener('click', onEraser, false);
-
+  eraser.addEventListener('touchstart', onEraser, false)
+  eraser.addEventListener('touchmove', onEraser, false)
+  eraser.addEventListener('touchend', onEraser, false)
+  //eraser.addEventListerner('touchcancel', onEraser, false)
+  //eraser.addEventListener('touchstart', onEraser, false)
   //Retrieves the specific color element from the DOM & sets current variable to new color value
   function onEraser(e) {
+    console.log("eraser is working")
     context.globalCompositeOperation = "destination-out";
     context.strokeStyle = 'transparent black';
   }
