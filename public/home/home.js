@@ -65,7 +65,14 @@ $(document).ready(function () {
 
   const roomDivs = [];
   const roomNameInput = $('input#room-name');
+  const passwordArr = [];
   const roomPasswordInput = $('input#optionalPassword')
+  //
+
+  //
+
+  //const roomPassword = roomPasswordInput.val().trim();
+
   createRoomsSocket();
   function createRoomsSocket() {
 
@@ -99,10 +106,10 @@ $(document).ready(function () {
       // clear input box
       roomNameInput.val('');
 
+      const roomPassword = roomPasswordInput.val().trim();
       if (!roomNameVal) return false;
       roomsSocket.emit('createRoom', roomNameVal, roomPassword, appendRoomDiv);
     });
-      const roomPassword = roomPasswordInput.val().trim();
 
     // add room divs on valid name submit
     roomsSocket.on('addRoomDiv', appendRoomDiv);
@@ -126,12 +133,28 @@ $(document).ready(function () {
   }
 
   function createRoomDiv(roomName, numUsers = 0) {
-    const newLinkDiv = $(
+    const roomPassword = roomPasswordInput.val().trim();
+    var newLinkDiv;
+    if (roomPassword.length > 0) {
+     newLinkDiv = $(
+        `<div class='link-div well'>
+          <a href="./rooms/${roomName}">
+          </a>
+            <form><input class='needPassword' type='password' placeholder='Password Required'><button type = 'submit' class ='submitPassword' >Submit</input></form > 
+        </div>`
+      );
+    }else{
+
+     newLinkDiv = $(
       `<div class='link-div well'>
           <a href="./rooms/${roomName}">
           </a>
         </div>`
     );
+    }
+    passwordArr.push({ roomName: roomPassword })
+    console.log(passwordArr)
+
     // writes "user" if num of users is 1
     // o.w. "users"
     // because grammar
@@ -140,14 +163,6 @@ $(document).ready(function () {
       <span class='numUsers'>${numUsers}</span> 
       <span class='userStr'>${singleOrPluralUsers(numUsers)}</span>`
     );
-    const roomPassword = roomPasswordInput.val().trim();
-
-    if(roomPassword){
-      newLinkDiv.append(
-        `<form><input class = 'needPassword' type = 'password' placeholder ='password required'></input></form>`
-
-      )
-    }
     return newLinkDiv;
   }
 
