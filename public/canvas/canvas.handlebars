@@ -5,6 +5,12 @@
 	<meta charset="UTF-8">
 	<title>Socket.Io whiteboard</title>
 	<link rel="stylesheet" href="./../host/host.css">
+	<script src="./../jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="https://cdn.rawgit.com/bgrins/spectrum/master/spectrum.js"></script>
+<link href="https://cdn.rawgit.com/bgrins/spectrum/master/spectrum.css" rel="stylesheet"/>
+
+
 </head>
 
 <body style='background-color: white'>
@@ -12,13 +18,10 @@
 	<canvas class="whiteboard"></canvas>
 
 	<div class="colors">
-		<div class="color black"></div>
-		<div class="color red"></div>
-		<div class="color green"></div>
-		<div class="color blue"></div>
-		<div class="color yellow"></div>
+		<input id="yoyo" type= "text"/>
+
 		<!--white marker = eraser, lol-->
-		<div class="color white"></div>
+		<div id="eraser"></div>
 		<button type="button" id="clearCanvas">Clear Canvas</button>
 		<button type="button" id="saveCanvas" class="saveImg">Save Canvas</button>
 	</div>
@@ -30,7 +33,7 @@
   </script>
 	<script src="./canvas.js"></script>
 	<script>
-		
+
 	</script>
 </body>
 
