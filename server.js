@@ -78,6 +78,10 @@ roomsNsp.on('connection', (roomsSocket) => {
     if (rooms.some(room => room.name === roomName)) {
       return;
     }
+    // if(roomPassword){
+
+    // }
+    console.log("room password is", roomPassword.length)
 
     // add new room to rooms array
     const newRoom = new Room(roomName);

@@ -100,10 +100,9 @@ $(document).ready(function () {
       roomNameInput.val('');
 
       if (!roomNameVal) return false;
-      const roomPassword = roomPasswordInput.val().trim();
-      console.log(roomPassword);
       roomsSocket.emit('createRoom', roomNameVal, roomPassword, appendRoomDiv);
     });
+      const roomPassword = roomPasswordInput.val().trim();
 
     // add room divs on valid name submit
     roomsSocket.on('addRoomDiv', appendRoomDiv);
@@ -133,7 +132,6 @@ $(document).ready(function () {
           </a>
         </div>`
     );
-
     // writes "user" if num of users is 1
     // o.w. "users"
     // because grammar
@@ -142,6 +140,14 @@ $(document).ready(function () {
       <span class='numUsers'>${numUsers}</span> 
       <span class='userStr'>${singleOrPluralUsers(numUsers)}</span>`
     );
+    const roomPassword = roomPasswordInput.val().trim();
+
+    if(roomPassword){
+      newLinkDiv.append(
+        `<form><input class = 'needPassword' type = 'password' placeholder ='password required'></input></form>`
+
+      )
+    }
     return newLinkDiv;
   }
 
