@@ -274,6 +274,9 @@
   function drawLine(x0, y0, x1, y1, color, emit) {
     context.beginPath();
 
+    // round line strokes
+    context.lineCap = 'round';
+
     //Moves the path to the specified point in the canvas, without creating a line
     context.moveTo(x0, y0);
 
@@ -282,12 +285,17 @@
 
     //DICTATES THE COLOR OF STROKE
     let colorVal = grabNums($("#yoyo").val())
-    
+
     // brush color
-    context.strokeStyle = rgbString(hsvToRgb(colorVal[0], colorVal[1], colorVal[2]))
+    context.strokeStyle = rgbString(hsvToRgb(colorVal[0], colorVal[1], colorVal[2]));
 
     // brush width
-    context.lineWidth = 5;
+    // bigger if erasing
+    if (context.globalCompositeOperation === 'destination-out') {
+      context.lineWidth = 10;
+    } else {
+      context.lineWidth = 5;
+    }
 
     //Actually draws the path you have defined with all those moveTo() and lineTo() methods
     context.stroke();
