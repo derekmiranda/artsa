@@ -94,7 +94,6 @@ $(document).ready(function () {
 
       if (!roomNameVal) return false;
       const roomPassword = roomPasswordInput.val().trim();
-      console.log(roomPassword);
       roomsSocket.emit('createRoom', roomNameVal, roomPassword, appendRoomDiv);
     });
 

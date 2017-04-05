@@ -56,9 +56,10 @@ app.put('/notes/:user', userController.updateUser);
 // app.delete('/:name', userController.deleteUser);
 
 // used to store name and list of connected clients in a room
-function Room(name) {
+function Room(name, password) {
   this.name = name;
   this.clients = [];
+  this.password = password;
 }
 
 // Rooms namespace: save and show available rooms to users
@@ -77,7 +78,7 @@ roomsNsp.on('connection', (roomsSocket) => {
     }
 
     // add new room to rooms array
-    const newRoom = new Room(roomName);
+    const newRoom = new Room(roomName, roomPassword);
     rooms.push(newRoom);
 
     // call cb on roomName

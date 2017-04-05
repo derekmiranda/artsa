@@ -140,7 +140,6 @@
       // show previous drawings
       function restoreCanvas(strokeData) {
         // go thru each stroke point and redraw them
-        console.log('Stroke data: '+strokeData);
         strokeData.forEach(strokeLine => {
           const w = canvas.width;
           const h = canvas.height;

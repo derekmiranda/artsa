@@ -155,6 +155,7 @@ canvas {
   color: white;
   border-radius: 15px;
   font-weight: bold;
+  float: right;
 }
 
 #notes{
