@@ -2,7 +2,9 @@
   background-color: grey;
 }*/
 
-
+*{
+  border-radius: 10px;
+}
 .container {
   margin-top: 20px;
   height: auto;
@@ -31,6 +33,7 @@ a {
 
 .btn-default:hover {
   background-color: indianred;
+
 }
 
 /**
@@ -54,7 +57,7 @@ html, body {
      display: flex;
      flex-wrap: wrap;
      height: auto;
-     background-color: lightgray;
+     background-color: #f7f7f7;
  }
 .whiteboard {
   height: 100%;
@@ -89,13 +92,13 @@ html, body {
 .color.white { background: #ccc url(eraser.png); width: 48px; height: 48px};
 
 
-@media screen and (min-width: 1200px){ 
+@media screen and (min-width: 1200px){
   #htmlCanvas {
     width: 725px;
   }
 }
 
-@media screen and (max-width: 1199px) and (min-width: 1000px) { 
+@media screen and (max-width: 1199px) and (min-width: 1000px) {
   #htmlCanvas {
     width: 590px;
   }
