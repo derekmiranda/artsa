@@ -74,9 +74,8 @@ $(document).ready(function () {
 
     // Adds rooms previously before going to home page
     function addExistingRooms(rooms) {
-      console.log('Adding rooms: ' + rooms);
       rooms.forEach(room => {
-        const roomDiv = createRoomDiv(room);
+        const roomDiv = createRoomDiv(room.name, room.clients.length);
         roomDivs.push(roomDiv);
         roomsContainer.append(roomDiv);
       });
@@ -88,7 +87,6 @@ $(document).ready(function () {
 
     // append room div to UI
     function appendRoomDiv(roomName) {
-      console.log('Adding room: ' + roomName);
       const newRoomDiv = createRoomDiv(roomName);
       roomDivs.push(newRoomDiv);
       roomsContainer.append(newRoomDiv);
@@ -98,23 +96,45 @@ $(document).ready(function () {
     $('form#create-room').submit((event, elem) => {
       event.preventDefault();
       const roomNameVal = roomNameInput.val().trim();
+
+      // clear input box
+      roomNameInput.val('');
+
       if (!roomNameVal) return false;
 
       roomsSocket.emit('createRoom', roomNameVal, appendRoomDiv);
     });
 
-    // add room divs on successful name submit
+    // add room divs on valid name submit
     roomsSocket.on('addRoomDiv', appendRoomDiv);
+
+    function updateUserCount(roomName, numUsers) {
+      // get roomName span tag w/ roomName inside
+      const roomNameTag = $(`span.roomName:contains(${roomName})`);
+      console.log('Room name tag: '+roomNameTag);
+
+      // get sibling of roomNameTag to get numUsersTag
+      const numUsersTag = roomNameTag.siblings('span.numUsers');
+
+      // change num w/in numUsersTag
+      console.log('Num users: '+numUsers);
+      numUsersTag.text(numUsers);
+  };
+
+    roomsSocket.on('updateUserCount', updateUserCount);
   }
 
-  function createRoomDiv(roomName) {
+  function createRoomDiv(roomName, numUsers = 0) {
     const newLinkDiv = $(
       `<div class='link-div well'>
           <a href="./rooms/${roomName}">
           </a>
         </div>`
     );
-    newLinkDiv.find('a').text(roomName);
+    newLinkDiv.find('a').append(
+      `<span class='roomName'>${roomName}</span>: 
+      <span class='numUsers'>${numUsers}</span> users`
+    );
     return newLinkDiv;
   }
 

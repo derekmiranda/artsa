@@ -53,59 +53,15 @@ app.get('/notes/:user', userController.getUser);
 app.put('/notes/:user', userController.updateUser);
 
 // // Delete a user from the database
-// // localhost://3000/user/"name"
 // app.delete('/:name', userController.deleteUser);
 
-function onDrawConnection(socket) {
-  // storing room name
-  let storedRoomName;
-
-  // Join room
-  socket.on('room', (roomName) => {
-    storedRoomName = roomName;
-    console.log(socket.id + ' joined ' + roomName);
-
-    // search for room w/in rooms and push new client id
-    const emittingRoom = rooms.find(room => room.name === roomName);
-    emittingRoom && emittingRoom.clients.push(socket.id);
-
-    socket.join(roomName);
-  });
-
-  //Waits for drawing emit from canvas.js THEN broadcasts & emits the data to socket in canvas.js
-  socket.on('drawing', (roomName, data) => socket.broadcast.to(roomName).emit('drawing', data));
-
-  //Waits for cleared emit from canvas.js THEN broadcasts & emits data to socket in canvas.js
-  socket.on('cleared', (roomName, data) => socket.broadcast.to(roomName).emit('clearCanvas', data));
-
-  // Disconnect event
-  socket.on('disconnect', () => {
-    // no stored room name or empty rooms array
-    if (!storedRoomName || !rooms.length) return;
-
-    console.log(socket.id + ' disconnected from ' + storedRoomName);
-
-    // search for room w/in rooms and remove id
-
-    // index of id to remove
-    const targetRoom = rooms.find(room => room.name === storedRoomName);
-    const disconnIdx = targetRoom.clients.indexOf(socket.id);
-
-    // remove id from room
-    targetRoom.clients.splice(disconnIdx, 1);
-  });
-}
-
-//On initial server connection, socket passed to onDrawConnection function.
-const drawNsp = io.of('/draw');
-drawNsp.on('connection', onDrawConnection);
-
-// Rooms namespace: save and show available rooms to users
+// used to store name and list of connected clients in a room
 function Room(name) {
   this.name = name;
   this.clients = [];
 }
 
+// Rooms namespace: save and show available rooms to users
 const rooms = [];
 const roomsNsp = io.of('/rooms');
 
@@ -119,6 +75,7 @@ roomsNsp.on('connection', (roomsSocket) => {
       return;
     }
 
+    // add new room to rooms array
     const newRoom = new Room(roomName);
     rooms.push(newRoom);
 
@@ -131,8 +88,62 @@ roomsNsp.on('connection', (roomsSocket) => {
   // gives new connection current rooms
   roomsSocket.on('addExisting', (cb) => {
     console.log('Adding current rooms to new connection');
-    cb(rooms.map(room => room.name));
+    cb(rooms);
   })
+
+  function onDrawConnection(socket) {
+    // storing room name
+    let storedRoomName;
+
+    // Join room
+    socket.on('room', (roomName) => {
+      storedRoomName = roomName;
+
+      // search for room w/in rooms and push new client id
+      const emittingRoom = rooms.find(room => room.name === roomName);
+
+      // stop function early if no emitting room found
+      // prevent errors caused by nodemon server restart
+      if (!emittingRoom) return;
+      emittingRoom.clients.push(socket.id);
+      socket.join(roomName);
+
+      // tell home.js to update num users for that room
+      console.log('Updating w/ these clients: '+emittingRoom.clients);
+      roomsNsp.emit('updateUserCount', emittingRoom.name, emittingRoom.clients.length);
+    });
+
+    //Waits for drawing emit from canvas.js THEN broadcasts & emits the data to socket in canvas.js
+    socket.on('drawing', (roomName, data) => socket.broadcast.to(roomName).emit('drawing', data));
+
+    //Waits for cleared emit from canvas.js THEN broadcasts & emits data to socket in canvas.js
+    socket.on('cleared', (roomName, data) => socket.broadcast.to(roomName).emit('clearCanvas', data));
+
+    // Disconnect event
+    socket.on('disconnect', () => {
+      // no stored room name or empty rooms array
+      if (!storedRoomName || !rooms.length) return;
+
+      // search for room w/in rooms and remove id
+
+      // index of id to remove
+      const targetRoom = rooms.find(room => room.name === storedRoomName);
+      const disconnIdx = targetRoom.clients.indexOf(socket.id);
+
+      // remove id from room
+      targetRoom.clients.splice(disconnIdx, 1);
+
+      // tell home.js to update num users for that room
+      console.log('Updating w/ these clients: '+targetRoom.clients);
+      roomsNsp.emit('updateUserCount', targetRoom.name, targetRoom.clients.length);
+    });
+  }
+
+  //On initial server connection, socket passed to onDrawConnection function.
+  const drawNsp = io.of('/draw');
+  drawNsp.on('connection', onDrawConnection);
+
+
 });
 
 http.listen(PORT, () => console.log(`Listening on PORT: ${PORT}`));
