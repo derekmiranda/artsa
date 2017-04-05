@@ -211,7 +211,7 @@
         console.log("ctx.lineTo(" + touches[i].pageX + ", " + touches[i].pageY + ");");
         ctx.lineTo(touches[i].pageX, touches[i].pageY);
         ctx.lineWidth = 5;
-        ctx.globalCompositeOperation = "source-over";
+        //ctx.globalCompositeOperation = "source-over";
         ctx.strokeStyle = getCurrentColor();
         ctx.stroke();
 
@@ -264,10 +264,12 @@
   eraser.addEventListener('click', onEraser, false);
   eraser.addEventListener('touchstart', onEraser, false)
   eraser.addEventListener('touchmove', onEraser, false)
-
+  eraser.addEventListener('touchend', onEraser, false)
+  //eraser.addEventListerner('touchcancel', onEraser, false)
   //eraser.addEventListener('touchstart', onEraser, false)
   //Retrieves the specific color element from the DOM & sets current variable to new color value
   function onEraser(e) {
+    console.log("eraser is working")
     context.globalCompositeOperation = "destination-out";
     context.strokeStyle = 'transparent black';
   }
