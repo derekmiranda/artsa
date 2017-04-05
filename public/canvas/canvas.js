@@ -20,11 +20,6 @@
     socket.emit('room', roomName || 'default');
   });
 
-  // disconnect confirm
-  socket.on('disconnect', () => {
-    socket.emit('userLeft', roomName || 'default');
-  });
-
   let current = {
     color: 'black',
   };

@@ -102,14 +102,20 @@ roomsNsp.on('connection', (roomsSocket) => {
       // search for room w/in rooms and push new client id
       const emittingRoom = rooms.find(room => room.name === roomName);
 
-      // stop function early if no emitting room found
-      // prevent errors caused by nodemon server restart
-      if (!emittingRoom) return;
+      if (
+        // stop function early if no emitting room found
+        // prevent errors caused by nodemon server restart
+        !emittingRoom ||
+        // or if socket.id already pushed,
+        // to prevent client id's from being pushed twice
+        // TODO: due to weird bug where client id gets pushed twice
+        // on commit a2555e87d3a70b55c84fcebdec790726426908e6
+        emittingRoom.clients.indexOf(socket.id) > -1
+      ) return;
       emittingRoom.clients.push(socket.id);
       socket.join(roomName);
 
       // tell home.js to update num users for that room
-      console.log('Updating w/ these clients: '+emittingRoom.clients);
       roomsNsp.emit('updateUserCount', emittingRoom.name, emittingRoom.clients.length);
     });
 
@@ -128,13 +134,21 @@ roomsNsp.on('connection', (roomsSocket) => {
 
       // index of id to remove
       const targetRoom = rooms.find(room => room.name === storedRoomName);
+
+      // if can't find target room, exit
+      if (!targetRoom) return;
+
       const disconnIdx = targetRoom.clients.indexOf(socket.id);
+
+      // return if can't find socket.id in targetRoom clients
+      // TODO: part of bug where client id gets pushed twice
+      // inside Room.client array
+      if (disconnIdx < 0) return;
 
       // remove id from room
       targetRoom.clients.splice(disconnIdx, 1);
 
       // tell home.js to update num users for that room
-      console.log('Updating w/ these clients: '+targetRoom.clients);
       roomsNsp.emit('updateUserCount', targetRoom.name, targetRoom.clients.length);
     });
   }

@@ -111,15 +111,17 @@ $(document).ready(function () {
     function updateUserCount(roomName, numUsers) {
       // get roomName span tag w/ roomName inside
       const roomNameTag = $(`span.roomName:contains(${roomName})`);
-      console.log('Room name tag: '+roomNameTag);
 
-      // get sibling of roomNameTag to get numUsersTag
+      // get sibling of roomNameTag to get numUsersTag and tag w/ grammar-sensitive "user"
       const numUsersTag = roomNameTag.siblings('span.numUsers');
+      const userStrTag = roomNameTag.siblings('span.userStr');
 
       // change num w/in numUsersTag
-      console.log('Num users: '+numUsers);
       numUsersTag.text(numUsers);
-  };
+
+      // adjust "users" if only 1 user in room
+      userStrTag.text(singleOrPluralUsers(numUsers));
+    };
 
     roomsSocket.on('updateUserCount', updateUserCount);
   }
@@ -131,11 +133,20 @@ $(document).ready(function () {
           </a>
         </div>`
     );
+
+    // writes "user" if num of users is 1
+    // o.w. "users"
+    // because grammar
     newLinkDiv.find('a').append(
       `<span class='roomName'>${roomName}</span>: 
-      <span class='numUsers'>${numUsers}</span> users`
+      <span class='numUsers'>${numUsers}</span> 
+      <span class='userStr'>${singleOrPluralUsers(numUsers)}</span>`
     );
     return newLinkDiv;
+  }
+
+  function singleOrPluralUsers(numUsers) {
+    return (numUsers === 1) ? 'user' : 'users';
   }
 
 });
