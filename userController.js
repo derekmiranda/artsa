@@ -14,14 +14,14 @@ userController.getAllUsers = function (req, res) {
 }
 
 userController.createUser = function (req, res) {
-  // console.log(req.body);
+  console.log("dis iz req body", req.body);
   User.create(req.body, (err, userRecord) => {
     if (err) {
       console.log('create user error', err);
-      return res.end();
+      return res.status(500).end();
     }
     console.log('user created');
-    return res.end();
+    return res.status(200).end();
   });
 }
 

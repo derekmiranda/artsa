@@ -65,8 +65,8 @@ $(document).ready(function () {
 
   const roomDivs = [];
   const roomNameInput = $('input#room-name');
+  const roomPasswordInput = $('input#optionalPassword')
   createRoomsSocket();
-
   function createRoomsSocket() {
 
     // Rooms socket namespace
@@ -81,7 +81,6 @@ $(document).ready(function () {
         roomsContainer.append(roomDiv);
       });
     }
-
     roomsSocket.on('connect', () => {
       roomsSocket.emit('addExisting', addExistingRooms);
     });
@@ -99,7 +98,8 @@ $(document).ready(function () {
       event.preventDefault();
       const roomNameVal = roomNameInput.val().trim();
       if (!roomNameVal) return false;
-
+      const roomPassword = roomPasswordInput.val().trim();
+      console.log(roomPassword)
       roomsSocket.emit('createRoom', roomNameVal, appendRoomDiv);
     });
 
