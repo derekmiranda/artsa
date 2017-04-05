@@ -14,7 +14,6 @@ userController.getAllUsers = function (req, res) {
 }
 
 userController.createUser = function (req, res) {
-  console.log("dis iz req body", req.body);
   User.create(req.body, (err, userRecord) => {
     if (err) {
       console.log('create user error', err);
