@@ -76,8 +76,12 @@ html, body {
   background: #ccc url(eraser.png); 
   width: 48px; 
   height: 48px
-};
+}
 
+/* Custom brush */
+canvas {
+  cursor: crosshair;
+}
 
 @media screen and (min-width: 1200px){ 
   #htmlCanvas {
