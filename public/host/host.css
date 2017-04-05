@@ -1,10 +1,11 @@
-/*body {
-  background-color: grey;
-}*/
+/* body {
+  background-color: black;
+} */
 
 *{
   border-radius: 10px;
 }
+
 .container {
   margin-top: 20px;
   height: auto;
@@ -12,28 +13,44 @@
 
 /*Canvas*/
 .col-sm-8 {
-  border: 3px solid;
+  border: 6px solid;
+  border-color: #07ffa4;
 }
 
 /*Notes*/
 .col-sm-4 {
-  border: 3px solid;
-  height: auto;
+  border: 6px solid;
+  border-color: #07eeff;
 }
 
 textarea {
   resize: none;
   width: 100%;
   height: 400px;
+  background-color: white;
+  padding-top: 5px;
+  text-decoration-style: none;
+  padding-left: 6px;
+  padding-right: 2px;
 }
 
 a {
   color: black;
 }
 
-.btn-default:hover {
-  background-color: indianred;
+.btn-default:hover, #save:hover, #leave:hover {
+  background-color: pink;
 
+}
+
+#leave{
+  border-radius: 15px;
+  background-color: pink;
+  color: white;
+  font-weight: bold;
+  border: none;
+  margin-bottom: 10px;
+  margin-top: 5px;
 }
 
 /**
@@ -41,6 +58,7 @@ a {
  */
 * {
   box-sizing: border-box;
+  border-radius: 15px;
 }
 
 html, body {
@@ -57,7 +75,7 @@ html, body {
      display: flex;
      flex-wrap: wrap;
      height: auto;
-     background-color: #f7f7f7;
+     background-color: white;
  }
 .whiteboard {
   height: 100%;
@@ -71,15 +89,19 @@ html, body {
 #htmlCanvas {
     width: 725px;
     height: 500px;
+    border: 1px #f2f2f2 solid;
 }
 .colors {
   position: fixed;
 }
 #eraser {
-  background: #ccc url(eraser.png); 
-  width: 48px; 
-  height: 48px
+  background: #ccc url(eraser.png);
+  width: 48px;
+  height: 41px;
+  background-repeat: no-repeat;
+  background-color: white;
 }
+
 
 /* Custom brush */
 canvas {
@@ -125,4 +147,43 @@ canvas {
     width: 100%;
     height: 175px;
   }
+}
+
+#save{
+  background-color: #ffe607;
+  border-style: none;
+  color: white;
+  border-radius: 15px;
+  font-weight: bold;
+}
+
+#notes{
+  color: red;
+  font-weight: bold;
+  font-style: "Rock Salt";
+  border: 9px red solid;
+}
+
+#clearCanvas, #saveCanvas{
+  padding: 4px;
+  font: sans-serif;
+  background-color: white;
+  color: grey;
+  border-color: #f2f2f2;
+  width: 52px;
+  font-weight: bolder;
+  font-size: 10px;
+}
+
+#saveDate{
+  text-align: center;
+  color: grey;
+}
+
+*:focus{
+  outline:none;
+}
+
+#leave:hover{
+  background-color:
 }
